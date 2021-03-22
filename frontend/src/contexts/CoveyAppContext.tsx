@@ -8,3 +8,5 @@ import { CoveyAppState } from '../CoveyTypes';
 const Context = React.createContext<CoveyAppState | null>(null);
 
 export default Context;
+
+// comment
