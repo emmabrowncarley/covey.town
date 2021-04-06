@@ -81,4 +81,13 @@ export default class CoveyTownsStore {
     return false;
   }
 
+  createTownMergeRequest(coveyTownID: string): boolean {
+    const existingTown = this.getControllerForTown(coveyTownID);
+    if (existingTown){
+      existingTown.createTownMergeRequest();
+      return true;
+    }
+    return false;
+  }
+
 }

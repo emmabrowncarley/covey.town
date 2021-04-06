@@ -83,6 +83,12 @@ export interface TownUpdateRequest {
   isMergeable?: boolean;
 }
 
+
+export interface TownMergeRequest {
+  requestingCoveyTownID: string;
+  destinationCoveyTownID: string;
+}
+
 /**
  * Envelope that wraps any response from the server
  */
@@ -180,7 +186,23 @@ export async function townUpdateHandler(requestData: TownUpdateRequest): Promise
     response: {},
     message: !success ? 'Invalid password or update values specified. Please double check your town update password.' : undefined,
   };
+}
 
+export async function townMergeRequestHandler(requestData: TownMergeRequest): Promise<ResponseEnvelope<Record<string, null>>> {
+  const townsStore = CoveyTownsStore.getInstance();
+  const initialRequest = townsStore.createTownMergeRequest(requestData.requestingCoveyTownID);
+  if (initialRequest) {
+    const success = townsStore.createTownMergeRequest(requestData.destinationCoveyTownID);
+    return {
+      isOK: success,
+      response: {},
+      message: !success ? 'could not merge' : undefined,
+    };
+  }
+  return {
+    isOK: false,
+    message: 'could not merge'
+  };
 }
 
 /**
@@ -203,6 +225,9 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     onTownDestroyed() {
       socket.emit('townClosing');
       socket.disconnect(true);
+    },
+    onTownMergeRequest(coveyTownID: string) {
+      socket.emit('townMergeRequestInitiated', coveyTownID);
     },
   };
 }

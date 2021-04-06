@@ -33,6 +33,7 @@ type CoveyAppUpdate =
   | { action: 'playerDisconnect'; player: Player }
   | { action: 'weMoved'; location: UserLocation }
   | { action: 'disconnect' }
+  // maybe something here??
   ;
 
 function defaultAppState(): CoveyAppState {
@@ -228,7 +229,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     }
     return (
       <div>
-        <WorldMap />
+        {/* <WorldMap /> */}
         <VideoOverlay preferredMode="fullwidth" />
       </div>
     );

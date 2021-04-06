@@ -83,6 +83,11 @@ export interface TownUpdateRequest {
   isMergeable?: boolean;
 }
 
+export interface TownMergeRequest {
+  requestingCoveyTownID: string;
+  destinationCoveyTownID: string;
+}
+
 /**
  * Envelope that wraps any response from the server
  */
