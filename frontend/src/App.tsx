@@ -77,7 +77,6 @@ async function GameController(initData: TownJoinResponse,
       startingFriendlyName = requestedFriendlyName;
       endingFriendlyName = destinationFriendlyName;
     }
-    
     if (toast) {
       toast({
         title: 'Town is merging with another town',
