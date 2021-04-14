@@ -45,18 +45,6 @@ export interface TownCreateRequest {
 }
 
 /**
- * Payload sent by the client to merge two towns
- */
-export interface TownMergeRequest {
-  destinationCoveyTownID: string;
-  requestedCoveyTownID: string;
-  coveyTownPassword: string, 
-  newTownFriendlyName: string, 
-  newTownIsPubliclyListed: boolean, 
-  newTownIsMergeable: boolean
-}
-
-/**
  * Response from the server for a Town create request
  */
 export interface TownCreateResponse {
@@ -138,11 +126,6 @@ export default class TownsServiceClient {
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
 
-  async mergeTowns(requestData: TownMergeRequest): Promise<void> {
-    const responseWrapper = await this._axios.patch<ResponseEnvelope<void>>(`/towns`, requestData);
-    return TownsServiceClient.unwrapOrThrowError(responseWrapper);
-  }
-
   async updateTown(requestData: TownUpdateRequest): Promise<void> {
     const responseWrapper = await this._axios.patch<ResponseEnvelope<void>>(`/towns/${requestData.coveyTownID}`, requestData);
     return TownsServiceClient.unwrapOrThrowError(responseWrapper, true);
@@ -155,11 +138,6 @@ export default class TownsServiceClient {
 
   async listTowns(): Promise<TownListResponse> {
     const responseWrapper = await this._axios.get<ResponseEnvelope<TownListResponse>>('/towns');
-    return TownsServiceClient.unwrapOrThrowError(responseWrapper);
-  }
-
-  async listMergeableTowns(): Promise<TownListResponse> {
-    const responseWrapper = await this._axios.get<ResponseEnvelope<TownListResponse>>('/mergeabletowns');
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
 

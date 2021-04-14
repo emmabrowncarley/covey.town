@@ -7,8 +7,6 @@ import {
   townCreateHandler, townDeleteHandler,
   townJoinHandler,
   townListHandler,
-  townMergeableListHandler,
-  townMergeRequestHandler,
   townSubscriptionHandler,
   townUpdateHandler,
 } from '../requestHandlers/CoveyTownRequestHandlers';
@@ -54,52 +52,13 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
         });
     }
   });
-  /**
-   * Merges two towns
-   */
-  app.patch('/towns', BodyParser.json(), async (req, res) => {
-    try {
-      const result = await townMergeRequestHandler({
-        destinationCoveyTownID: req.body.destinationCoveyTownID,
-        requestedCoveyTownID: req.body.requestedCoveyTownID,
-        coveyTownPassword: req.body.coveyTownPassword,
-        newTownFriendlyName: req.body.newTownFriendlyName,
-        newTownIsPubliclyListed: req.body.newTownIsPubliclyListed,
-        newTownIsMergeable: req.body.newTownIsMergeable,
-      });
-      res.status(StatusCodes.OK)
-        .json(result);
-    } catch (err) {
-      logError(err);
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({
-          message: 'Internal server error, please see log in server for more details',
-        });
-    }
-  });
+
   /**
    * List all towns
    */
   app.get('/towns', BodyParser.json(), async (_req, res) => {
     try {
       const result = await townListHandler();
-      res.status(StatusCodes.OK)
-        .json(result);
-    } catch (err) {
-      logError(err);
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({
-          message: 'Internal server error, please see log in server for more details',
-        });
-    }
-  });
-
-  /**
-  * List all mergeable towns
-  */
-  app.get('/mergeabletowns', BodyParser.json(), async (_req, res) => {
-    try {
-      const result = await townMergeableListHandler();
       res.status(StatusCodes.OK)
         .json(result);
     } catch (err) {

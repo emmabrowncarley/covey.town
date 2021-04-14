@@ -13,11 +13,9 @@ const friendlyNanoID = customAlphabet('1234567890ABCDEF', 8);
  * can occur (e.g. joining a town, moving, leaving a town)
  */
 export default class CoveyTownController {
-
   get capacity(): number {
     return this._capacity;
   }
-
   set isPubliclyListed(value: boolean) {
     this._isPubliclyListed = value;
   }
@@ -130,7 +128,6 @@ export default class CoveyTownController {
 
   /**
    * Updates the location of a player within the town
-   * 
    * @param player Player to update location for
    * @param location New location for this player
    */
@@ -169,22 +166,7 @@ export default class CoveyTownController {
     return this._sessions.find((p) => p.sessionToken === token);
   }
 
-  /**
-   * Disconnects all players from this town
-   */
   disconnectAllPlayers(): void {
     this._listeners.forEach((listener) => listener.onTownDestroyed());
-  }
-
-  /**
-   * Notify all players that they will be merged with the town associated with 
-   * the newTownID given
-   * 
-   * @param newTownID the newTownID of the town to be merged with
-   */
-  townsMerged(destinationTownID: string, requestedTownID: string, destinationFriendlyName: string, requestedFriendlyName: string, 
-    newTownFriendlyName: string, newTownIsPubliclyListed: boolean, newTownIsMergeable: boolean): void {
-    this._listeners.forEach((listener) => listener.onTownMerged(destinationTownID, requestedTownID, destinationFriendlyName, 
-      requestedFriendlyName, newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable));
   }
 }

@@ -38,7 +38,6 @@ function wrappedTownSettings() {
     nearbyPlayers: { nearbyPlayers: [] },
     players: [],
     myPlayerID: '',
-    townIDToMerge: '',
     currentTownID: '',
     currentTownFriendlyName: '',
     currentTownIsPubliclyListed: false,
@@ -64,11 +63,10 @@ describe('Part 4 - Town Settings', () => {
   let friendlyNameField: HTMLInputElement;
   let passwordField: HTMLInputElement
   let isPublicCheck: HTMLInputElement;
-  let isMergeableCheck: HTMLInputElement;
   let deleteButton: TargetElement;
   let updateButton: TargetElement;
 
-  const openSettingsPane = async (params: { friendlyName: string, isPubliclyListed: boolean, isMergeable: boolean, townID: string }) => {
+  const openSettingsPane = async (params: { friendlyName: string, isPubliclyListed: boolean, townID: string }) => {
     // @ts-ignore
     mockUseCoveyAppState.currentTownID = params.townID;
     // @ts-ignore
@@ -82,7 +80,6 @@ describe('Part 4 - Town Settings', () => {
     friendlyNameField = renderData.getByLabelText('Friendly Name') as HTMLInputElement;
     passwordField = renderData.getByTestId('updatePassword') as HTMLInputElement;
     isPublicCheck = renderData.getByLabelText('Publicly Listed') as HTMLInputElement;
-    isMergeableCheck = renderData.getByLabelText('Mergeable?') as HTMLInputElement;
     deleteButton = renderData.getByTestId('deletebutton');
     updateButton = renderData.getByTestId('updatebutton');
   }
@@ -95,7 +92,6 @@ describe('Part 4 - Town Settings', () => {
     let params = {
       friendlyName: nanoid(),
       isPubliclyListed: true,
-      isMergeable: false,
       townID: nanoid(),
     }
     await openSettingsPane(params);
@@ -105,14 +101,11 @@ describe('Part 4 - Town Settings', () => {
       .toBe(params.friendlyName));
     await waitFor(() => expect(isPublicCheck.checked)
       .toBe(true));
-    await waitFor(() => expect(isMergeableCheck.checked)
-    .toBe(false));
     renderData.unmount();
 
     params = {
       friendlyName: nanoid(),
       isPubliclyListed: false,
-      isMergeable: false,
       townID: nanoid(),
     }
     await openSettingsPane(params);
@@ -122,7 +115,6 @@ describe('Part 4 - Town Settings', () => {
       .toBe(params.friendlyName));
     await waitFor(() => expect(isPublicCheck.checked)
       .toBe(false));
-    await waitFor(() => expect(isMergeableCheck.checked).toBe(false));
     renderData.unmount();
   });
   describe("Updating a town", () => {
@@ -130,7 +122,6 @@ describe('Part 4 - Town Settings', () => {
       const params = {
         friendlyName: nanoid(),
         isPubliclyListed: false,
-        isMergeable: false,
         townID: nanoid(),
       }
       await openSettingsPane(params);
@@ -161,7 +152,6 @@ describe('Part 4 - Town Settings', () => {
       const params = {
         friendlyName: nanoid(),
         isPubliclyListed: false,
-        isMergeable: false,
         townID: nanoid(),
       }
 
@@ -193,7 +183,6 @@ describe('Part 4 - Town Settings', () => {
       const params = {
         friendlyName: nanoid(),
         isPubliclyListed: false,
-        isMergeable: false,
         townID: nanoid(),
       }
 
@@ -228,7 +217,6 @@ describe('Part 4 - Town Settings', () => {
       const params = {
         friendlyName: nanoid(),
         isPubliclyListed: true,
-        isMergeable: true,
         townID: nanoid(),
       }
       await openSettingsPane(params);
@@ -257,7 +245,6 @@ describe('Part 4 - Town Settings', () => {
       const params = {
         friendlyName: nanoid(),
         isPubliclyListed: true,
-        isMergeable: true,
         townID: nanoid(),
       }
       mockDeleteTown.mockReturnValue(Promise.resolve());
@@ -288,7 +275,6 @@ describe('Part 4 - Town Settings', () => {
       const params = {
         friendlyName: nanoid(),
         isPubliclyListed: false,
-        isMergeable: false,
         townID: nanoid(),
       }
 

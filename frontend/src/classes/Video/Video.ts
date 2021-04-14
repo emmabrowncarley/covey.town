@@ -61,10 +61,7 @@ export default class Video {
     return this._coveyTownID;
   }
 
-  private async setup(resetToken?: boolean): Promise<TownJoinResponse> {
-    if (resetToken) {
-      this.initialisePromise = null;
-    }
+  private async setup(): Promise<TownJoinResponse> {
     if (!this.initialisePromise) {
       this.initialisePromise = new Promise((resolve, reject) => {
         // Request our token to join the town
@@ -77,7 +74,6 @@ export default class Video {
             this.videoToken = result.providerVideoToken;
             this._townFriendlyName = result.friendlyName;
             this._isPubliclyListed = result.isPubliclyListed;
-            this._isMergeable = result.isMergeable;
             resolve(result);
           })
           .catch((err) => {
@@ -100,7 +96,7 @@ export default class Video {
         this.teardownPromise = this.initialisePromise.then(async () => {
           await doTeardown();
         }).catch(async (err) => {
-          this.logger.warn("Ignoring video initialisation error as we're tearing down anyway.", err);
+          this.logger.warn("Ignoring video initialisation error as we're teraing down anyway.", err);
           await doTeardown();
         });
       } else {
@@ -111,7 +107,7 @@ export default class Video {
     return this.teardownPromise ?? Promise.resolve();
   }
 
-  public static async setup(username: string, coveyTownID: string, resetToken?: boolean): Promise<TownJoinResponse> {
+  public static async setup(username: string, coveyTownID: string): Promise<TownJoinResponse> {
     let result = null;
 
     if (!Video.video) {
@@ -119,7 +115,7 @@ export default class Video {
     }
 
     try {
-      result = await Video.video.setup(resetToken);
+      result = await Video.video.setup();
       if (!result) {
         Video.video = null;
       }
