@@ -84,18 +84,6 @@ export interface TownUpdateRequest {
 }
 
 /**
- * Payload sent by the client to merge two towns
- */
-export interface TownMergeRequest {
-  destinationCoveyTownID: string;
-  requestedCoveyTownID: string;
-  coveyTownPassword: string, 
-  newTownFriendlyName: string, 
-  newTownIsPubliclyListed: boolean, 
-  newTownIsMergeable: boolean
-}
-
-/**
  * Envelope that wraps any response from the server
  */
 export interface ResponseEnvelope<T> {
@@ -134,7 +122,7 @@ export async function townJoinHandler(requestData: TownJoinRequest): Promise<Res
       currentPlayers: coveyTownController.players,
       friendlyName: coveyTownController.friendlyName,
       isPubliclyListed: coveyTownController.isPubliclyListed,
-      isMergeable: coveyTownController.isMergeable,
+      isMergeable: coveyTownController.isMergeable
     },
   };
 }
@@ -147,14 +135,6 @@ export async function townListHandler(): Promise<ResponseEnvelope<TownListRespon
   };
 }
 
-export async function townMergeableListHandler(): Promise<ResponseEnvelope<TownListResponse>> {
-  const townsStore = CoveyTownsStore.getInstance();
-  return {
-    isOK: true,
-    response: { towns: townsStore.getMergeableTowns() },
-  };
-}
-
 export async function townCreateHandler(requestData: TownCreateRequest): Promise<ResponseEnvelope<TownCreateResponse>> {
   const townsStore = CoveyTownsStore.getInstance();
   if (requestData.friendlyName.length === 0) {
@@ -163,31 +143,13 @@ export async function townCreateHandler(requestData: TownCreateRequest): Promise
       message: 'FriendlyName must be specified',
     };
   }
-  const newTown = townsStore.createTown(requestData.friendlyName, requestData.isPubliclyListed, requestData.isMergeable);
+  const newTown = townsStore.createTown(requestData.friendlyName, requestData.isPubliclyListed);
   return {
     isOK: true,
     response: {
       coveyTownID: newTown.coveyTownID,
       coveyTownPassword: newTown.townUpdatePassword,
     },
-  };
-}
-
-export async function townMergeRequestHandler(requestData: TownMergeRequest): Promise<ResponseEnvelope<Record<string, null>>> {
-  const townsStore = CoveyTownsStore.getInstance();
-  const mergedTown = townsStore.mergeTowns(requestData.destinationCoveyTownID, 
-    requestData.requestedCoveyTownID, requestData.coveyTownPassword, 
-    requestData.newTownFriendlyName, requestData.newTownIsPubliclyListed, 
-    requestData.newTownIsMergeable);
-  if (mergedTown) {
-    return {
-      isOK: true,
-      response: {},
-    };
-  }
-  return {
-    isOK: false,
-    message: 'could not merge',
   };
 }
 
@@ -232,12 +194,6 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     onTownDestroyed() {
       socket.emit('townClosing');
       socket.disconnect(true);
-    },
-    onTownMerged(destinationTownID: string, requestedTownID: string, destinationFriendlyName: string, requestedFriendlyName: string, 
-      newTownFriendlyName: string, newTownIsPubliclyListed: boolean, newTownIsMergeable: boolean) {
-        
-      socket.emit('roomsMerged', destinationTownID, requestedTownID, destinationFriendlyName, 
-        requestedFriendlyName, newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable);
     },
   };
 }

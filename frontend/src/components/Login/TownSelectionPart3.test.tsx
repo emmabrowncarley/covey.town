@@ -88,7 +88,6 @@ function wrappedTownSelection() {
     currentTownID: '',
     currentTownIsPubliclyListed: false,
     currentTownIsMergeable: false,
-    townIDToMerge: '',
     currentTownFriendlyName: '',
     sessionToken: '',
     userName: '',
@@ -280,7 +279,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
 
           // Check for call sequence
           await waitFor(() => expect(mockVideoSetup)
-            .toBeCalledWith(userName, townID, false));
+            .toBeCalledWith(userName, townID));
           await waitFor(() => expect(doLoginMock)
             .toBeCalledWith({ providerVideoToken: videoToken }));
           await waitFor(() => expect(mockConnect)
