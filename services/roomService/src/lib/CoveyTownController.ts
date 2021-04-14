@@ -58,6 +58,14 @@ export default class CoveyTownController {
     return this._isMergeable;
   }
 
+  set isJoinable(value: boolean | undefined){
+    this._isJoinable = value;
+  }
+
+  get isJoinable(): boolean | undefined{
+    return this._isJoinable;
+  }
+
   /** The list of players currently in the town * */
   private _players: Player[] = [];
 
@@ -80,9 +88,11 @@ export default class CoveyTownController {
 
   private _isMergeable: boolean;
 
+  private _isJoinable: boolean | undefined;
+
   private _capacity: number;
 
-  constructor(friendlyName: string, isPubliclyListed: boolean, isMergeable?: boolean) {
+  constructor(friendlyName: string, isPubliclyListed: boolean, isMergeable?: boolean, isJoinable?: boolean) {
     this._coveyTownID = (process.env.DEMO_TOWN_ID === friendlyName ? friendlyName : friendlyNanoID());
     this._capacity = 50;
     this._townUpdatePassword = nanoid(24);
@@ -93,6 +103,12 @@ export default class CoveyTownController {
       this._isMergeable = isMergeable;
     } else {
       this._isMergeable = false;
+    }
+
+    if (isJoinable !== undefined) {
+      this.isJoinable = isJoinable;
+    } else {
+      this.isJoinable = true;
     }
   }
 

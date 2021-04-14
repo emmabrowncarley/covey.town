@@ -81,6 +81,7 @@ export interface TownUpdateRequest {
   friendlyName?: string;
   isPubliclyListed?: boolean;
   isMergeable?: boolean;
+  isJoinable?: boolean;
 }
 
 /**
@@ -120,6 +121,13 @@ export async function townJoinHandler(requestData: TownJoinRequest): Promise<Res
     return {
       isOK: false,
       message: 'Error: No such town',
+    };
+  }
+  const joinable = coveyTownController.isJoinable;
+  if (!joinable){
+    return {
+      isOK: false,
+      message: 'Town is merging and cannot be joined at this time',
     };
   }
   const newPlayer = new Player(requestData.userName);
@@ -203,7 +211,8 @@ export async function townDeleteHandler(requestData: TownDeleteRequest): Promise
 
 export async function townUpdateHandler(requestData: TownUpdateRequest): Promise<ResponseEnvelope<Record<string, null>>> {
   const townsStore = CoveyTownsStore.getInstance();
-  const success = townsStore.updateTown(requestData.coveyTownID, requestData.coveyTownPassword, requestData.friendlyName, requestData.isPubliclyListed);
+  const success = townsStore.updateTown(requestData.coveyTownID, requestData.coveyTownPassword, requestData.friendlyName, requestData.isPubliclyListed,
+    requestData.isMergeable, requestData.isJoinable);
   return {
     isOK: success,
     response: {},
