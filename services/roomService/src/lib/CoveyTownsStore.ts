@@ -54,7 +54,7 @@ export default class CoveyTownsStore {
     return newTown;
   }
 
-  updateTown(coveyTownID: string, coveyTownPassword: string, friendlyName?: string, makePublic?: boolean, makeMergeable?: boolean): boolean {
+  updateTown(coveyTownID: string, coveyTownPassword: string, friendlyName?: string, makePublic?: boolean, makeMergeable?: boolean, makeJoinable?: boolean): boolean {
     const existingTown = this.getControllerForTown(coveyTownID);
     if (existingTown && passwordMatches(coveyTownPassword, existingTown.townUpdatePassword)) {
       if (friendlyName !== undefined) {
@@ -68,6 +68,9 @@ export default class CoveyTownsStore {
       }
       if (makeMergeable !== undefined) {
         existingTown.isMergeable = makeMergeable;
+      }
+      if (makeJoinable !== undefined) {
+        existingTown.isJoinable = makeJoinable;
       }
       return true;
     }
@@ -87,10 +90,12 @@ export default class CoveyTownsStore {
       requestedTown.townsMerged(destinationTown.coveyTownID, requestedTown.coveyTownID, destinationTown.friendlyName, 
         requestedTown.friendlyName, newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable);
 
-      this.updateTown(destinationTown.coveyTownID, destinationTown.townUpdatePassword, 
-        newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable);
+      this.updateTown(destinationCoveyTownID, destinationTown.townUpdatePassword, undefined, undefined, undefined, false);
+      this.updateTown(requestedCoveyTownID, requestedTown.townUpdatePassword, undefined, undefined, undefined, false);
 
       setTimeout(() => {
+        this.updateTown(destinationTown.coveyTownID, destinationTown.townUpdatePassword, 
+          newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable, true);
         destinationTown.disconnectAllPlayers();
         this.deleteTown(requestedTown.coveyTownID, requestedTown.townUpdatePassword);
       }, 7000);

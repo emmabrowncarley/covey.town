@@ -90,6 +90,7 @@ export interface TownUpdateRequest {
   friendlyName?: string;
   isPubliclyListed?: boolean;
   isMergeable?: boolean;
+  isJoinable?: boolean
 }
 
 /**
