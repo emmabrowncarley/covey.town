@@ -86,6 +86,7 @@ function wrappedTownSelection() {
     myPlayerID: '',
     currentTownID: '',
     currentTownIsPubliclyListed: false,
+    townIDToMerge: '',
     currentTownIsMergeable: false,
     currentTownFriendlyName: '',
     sessionToken: '',
@@ -285,4 +286,3 @@ describe('Part 1 - Public room listing', () => {
     })
   });
 });
-

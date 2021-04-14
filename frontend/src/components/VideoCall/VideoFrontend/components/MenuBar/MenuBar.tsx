@@ -13,7 +13,7 @@ import ToggleAudioButton from '../Buttons/ToggleAudioButton/ToggleAudioButton';
 import ToggleVideoButton from '../Buttons/ToggleVideoButton/ToggleVideoButton';
 import ToggleScreenShareButton from '../Buttons/ToogleScreenShareButton/ToggleScreenShareButton';
 import TownSettings from '../../../../Login/TownSettings';
-import MenuContainer from '@material-ui/core/Menu';
+import TownMerging from '../../../../Login/TownMerging';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
   container: {
@@ -91,8 +91,8 @@ export default function MenuBar(props: { setMediaError?(error: Error): void }) {
           <Hidden smDown>
             <Grid style={{ flex: 1 }}>
               <Grid container justify="flex-end">
+                <TownMerging />
                 <TownSettings />
-
                 <Menu />
                 <EndCallButton />
               </Grid>
