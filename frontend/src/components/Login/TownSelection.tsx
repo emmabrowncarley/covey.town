@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useReducer } from 'react';
 import assert from "assert";
 import {
   Box,
@@ -23,8 +23,8 @@ import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/us
 import Video from '../../classes/Video/Video';
 import { CoveyTownInfo, TownJoinResponse, } from '../../classes/TownsServiceClient';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
+import { appStateReducer, defaultAppState } from '../../AppHelper';
 
-// test comment
 interface TownSelectionProps {
   doLogin: (initData: TownJoinResponse) => Promise<boolean>
 }
@@ -37,27 +37,12 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   const [townIDToJoin, setTownIDToJoin] = useState<string>('');
   const [currentPublicTowns, setCurrentPublicTowns] = useState<CoveyTownInfo[]>();
   const { connect } = useVideoContext();
-  const { apiClient } = useCoveyAppState();
+  const { apiClient, townIDToMerge } = useCoveyAppState();
+  // eslint-disable-next-line
+  const [appState, dispatchAppUpdate] = useReducer(appStateReducer, defaultAppState());
   const toast = useToast();
 
-  const updateTownListings = useCallback(() => {
-    // console.log(apiClient);
-    apiClient.listTowns()
-      .then((towns) => {
-        setCurrentPublicTowns(towns.towns
-          .sort((a, b) => b.currentOccupancy - a.currentOccupancy)
-        );
-      })
-  }, [setCurrentPublicTowns, apiClient]);
-  useEffect(() => {
-    updateTownListings();
-    const timer = setInterval(updateTownListings, 2000);
-    return () => {
-      clearInterval(timer)
-    };
-  }, [updateTownListings]);
-
-  const handleJoin = useCallback(async (coveyRoomID: string) => {
+  const handleJoin = useCallback(async (coveyRoomID: string, resetToken = false) => {
     try {
       if (!userName || userName.length === 0) {
         toast({
@@ -75,7 +60,10 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
         });
         return;
       }
-      const initData = await Video.setup(userName, coveyRoomID);
+      if (resetToken) {
+        await Video.teardown();
+      }
+      const initData = await Video.setup(userName, coveyRoomID, resetToken);
 
       const loggedIn = await doLogin(initData);
       if (loggedIn) {
@@ -139,6 +127,30 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
     }
   };
 
+  const updateTownListings = useCallback(() => {
+    apiClient.listTowns()
+      .then((towns) => {
+        setCurrentPublicTowns(towns.towns
+          .sort((a, b) => b.currentOccupancy - a.currentOccupancy)
+        );
+      })
+  }, [setCurrentPublicTowns, apiClient]);
+  
+  useEffect(() => {
+    updateTownListings();
+    const timer = setInterval(updateTownListings, 2000);
+    return () => {
+      clearInterval(timer)
+    };
+  }, [updateTownListings]);
+
+  useEffect(() => {
+    if (townIDToMerge !== '') {
+      handleJoin(townIDToMerge, true);
+      dispatchAppUpdate({ action: 'updateTownToMerge', newTownIDToMerge: ''});
+    }
+  }, [townIDToMerge, handleJoin]);
+
   return (
     <>
       <form>
@@ -191,12 +203,13 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
           <Box borderWidth="1px" borderRadius="lg">
             <Heading p="4" as="h2" size="lg">Join an Existing Town</Heading>
             <Box borderWidth="1px" borderRadius="lg">
-              <Flex p="4"><FormControl>
-                <FormLabel htmlFor="townIDToJoin">Town ID</FormLabel>
-                <Input name="townIDToJoin" placeholder="ID of town to join, or select from list"
-                       value={townIDToJoin}
-                       onChange={event => setTownIDToJoin(event.target.value)}/>
-              </FormControl>
+              <Flex p="4">
+                <FormControl>
+                  <FormLabel htmlFor="townIDToJoin">Town ID</FormLabel>
+                  <Input name="townIDToJoin" placeholder="ID of town to join, or select from list"
+                        value={townIDToJoin}
+                        onChange={event => setTownIDToJoin(event.target.value)}/>
+                </FormControl>
                 <Button data-testid='joinTownByIDButton'
                         onClick={() => handleJoin(townIDToJoin)}>Connect</Button>
               </Flex>
