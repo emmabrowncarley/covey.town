@@ -28,11 +28,11 @@ function mockCoveyListener(): CoveyTownListener {
   };
 }
 
-function createTownForTesting(friendlyNameToUse?: string, isPublic = false) {
+function createTownForTesting(friendlyNameToUse?: string, isPublic = false, isMergeable = true) {
   const friendlyName = friendlyNameToUse !== undefined ? friendlyNameToUse :
     `${isPublic ? 'Public' : 'Private'}TestingTown=${nanoid()}`;
   return CoveyTownsStore.getInstance()
-    .createTown(friendlyName, isPublic);
+    .createTown(friendlyName, isPublic, isMergeable);
 }
 
 describe('CoveyTownsStore', () => {
@@ -79,13 +79,17 @@ describe('CoveyTownsStore', () => {
       const town = createTownForTesting();
       const { friendlyName } = town;
       const res = CoveyTownsStore.getInstance()
-        .updateTown(town.coveyTownID, 'abcd', 'newName', true);
+        .updateTown(town.coveyTownID, 'abcd', 'newName', true, false, false);
       expect(res)
         .toBe(false);
       expect(town.friendlyName)
         .toBe(friendlyName);
       expect(town.isPubliclyListed)
         .toBe(false);
+      expect(town.isMergeable)
+        .toBe(true);
+      expect(town.isJoinable)
+        .toBe(true);
 
     });
     it('Should fail if the townID does not exist', async () => {
@@ -127,7 +131,23 @@ describe('CoveyTownsStore', () => {
       expect(town.friendlyName)
         .toBe(newFriendlyName);
 
-      // Now try to change both
+      // Now try with a mergeable change
+      const resMerge = CoveyTownsStore.getInstance()
+        .updateTown(town.coveyTownID, town.townUpdatePassword, undefined, undefined, false);
+      expect(resMerge)
+        .toBe(true);
+      expect(town.isMergeable)
+        .toBe(false);
+
+      // Now try with a joinable change
+      const resJoin = CoveyTownsStore.getInstance()
+        .updateTown(town.coveyTownID, town.townUpdatePassword, undefined, undefined, undefined, false);
+      expect(resJoin)
+        .toBe(true);
+      expect(town.isJoinable)
+        .toBe(false);
+
+      // Now try to change both friendlyName and public
       const res3 = CoveyTownsStore.getInstance()
         .updateTown(town.coveyTownID, town.townUpdatePassword, friendlyName, false);
       expect(res3)
@@ -136,6 +156,20 @@ describe('CoveyTownsStore', () => {
         .toBe(false);
       expect(town.friendlyName)
         .toBe(friendlyName);
+
+      // Now try to change everything
+      const everything = CoveyTownsStore.getInstance()
+        .updateTown(town.coveyTownID, town.townUpdatePassword, friendlyName, false, false, false);
+      expect(everything)
+        .toBe(true);
+      expect(town.isPubliclyListed)
+        .toBe(false);
+      expect(town.friendlyName)
+        .toBe(friendlyName);
+      expect(town.isMergeable)
+        .toBe(false);
+      expect(town.isJoinable)
+        .toBe(false);
     });
   });
 
@@ -242,6 +276,157 @@ describe('CoveyTownsStore', () => {
         .filter(townInfo => townInfo.friendlyName === town.friendlyName || townInfo.coveyTownID === town.coveyTownID);
       expect(townsPostDelete.length)
         .toBe(0);
+    });
+  });
+  describe('listMergeableTowns', () => {
+    it('Should only include mergeable towns', async () => {
+      const town = createTownForTesting(undefined, true, true);
+      const town2 = createTownForTesting(undefined, true, false);
+      const towns = CoveyTownsStore.getInstance()
+        .getMergeableTowns()
+        .filter(townInfo => townInfo.friendlyName === town.friendlyName || townInfo.coveyTownID === town.coveyTownID || 
+          townInfo.friendlyName === town2.friendlyName || townInfo.coveyTownID === town2.coveyTownID );
+      expect(towns.length)
+        .toBe(1);
+      const town3 = createTownForTesting(undefined, true, true);
+      const towns2 = CoveyTownsStore.getInstance()
+        .getMergeableTowns()
+        .filter(townInfo => townInfo.friendlyName === town.friendlyName || townInfo.coveyTownID === town.coveyTownID || 
+          townInfo.friendlyName === town2.friendlyName || townInfo.coveyTownID === town2.coveyTownID || 
+          townInfo.friendlyName === town3.friendlyName || townInfo.coveyTownID === town3.coveyTownID );
+      expect(towns2.length)
+        .toBe(2);
+    });
+    it('Should not include private towns even if mergeable', async () => {
+      const town = createTownForTesting(undefined, true, true);
+      const town2 = createTownForTesting(undefined, false, true);
+      const towns = CoveyTownsStore.getInstance()
+        .getMergeableTowns()
+        .filter(townInfo => townInfo.friendlyName === town.friendlyName || townInfo.coveyTownID === town.coveyTownID || 
+          townInfo.friendlyName === town2.friendlyName || townInfo.coveyTownID === town2.coveyTownID );
+      expect(towns.length)
+        .toBe(1);
+    });
+    it('Should not include private mergeable towns, even if there is a public mergeable town of same name', async () => {
+      const town = createTownForTesting(undefined, false, true);
+      const town2 = createTownForTesting(town.friendlyName, true, true);
+      const towns = CoveyTownsStore.getInstance()
+        .getTowns()
+        .filter(townInfo => townInfo.friendlyName === town.friendlyName || townInfo.coveyTownID === town.coveyTownID);
+      expect(towns.length)
+        .toBe(1);
+      expect(towns[0].coveyTownID)
+        .toBe(town2.coveyTownID);
+      expect(towns[0].friendlyName)
+        .toBe(town2.friendlyName);
+    });
+    it('Should not include deleted towns', async () => {
+      const town = createTownForTesting(undefined, true, true);
+      const towns = CoveyTownsStore.getInstance()
+        .getTowns()
+        .filter(townInfo => townInfo.friendlyName === town.friendlyName || townInfo.coveyTownID === town.coveyTownID);
+      expect(towns.length)
+        .toBe(1);
+      const res = CoveyTownsStore.getInstance()
+        .deleteTown(town.coveyTownID, town.townUpdatePassword);
+      expect(res)
+        .toBe(true);
+      const townsPostDelete = CoveyTownsStore.getInstance()
+        .getTowns()
+        .filter(townInfo => townInfo.friendlyName === town.friendlyName || townInfo.coveyTownID === town.coveyTownID);
+      expect(townsPostDelete.length)
+        .toBe(0);
+    });
+  });
+  describe('mergeTowns', () => {
+    it('Should check the password before merging', () => {
+      const town = createTownForTesting('friendlyName', true, true);
+      const { friendlyName } = town;
+
+      const town2 = createTownForTesting('friendlyName2', true, true);
+      const { friendlyName: friendlyName2 } = town2;
+
+      const res = CoveyTownsStore.getInstance().mergeTowns(town.coveyTownID, town2.coveyTownID, 'wrongPassword', 
+        'newTownFriendlyName', false, false);
+      expect(res)
+        .toBeUndefined();
+      expect(town.friendlyName)
+        .toBe(friendlyName);
+      expect(town2.friendlyName)
+        .toBe(friendlyName2);
+      expect(town.isPubliclyListed)
+        .toBe(true);
+      expect(town2.isPubliclyListed)
+        .toBe(true); 
+      expect(town.isMergeable)
+        .toBe(true);
+      expect(town2.isMergeable)
+        .toBe(true);
+    });
+    it('Should fail if the requested townID does not exist', async () => {
+      const town = createTownForTesting('friendlyName', true, true);
+      const { friendlyName } = town;
+
+      const town2 = createTownForTesting('friendlyName2', true, true);
+      const { friendlyName: friendlyName2 } = town2;
+
+      const res = CoveyTownsStore.getInstance().mergeTowns('fakeLOL', town2.coveyTownID, town.townUpdatePassword, 
+        'newTownFriendlyName', false, false);
+      expect(res)
+        .toBeUndefined();
+      expect(town.friendlyName)
+        .toBe(friendlyName);
+      expect(town2.friendlyName)
+        .toBe(friendlyName2);
+      expect(town.isPubliclyListed)
+        .toBe(true);
+      expect(town2.isPubliclyListed)
+        .toBe(true); 
+      expect(town.isMergeable)
+        .toBe(true);
+      expect(town2.isMergeable)
+        .toBe(true);
+    });
+    it('Should fail if the destination townID does not exist', async () => {
+      const town = createTownForTesting('friendlyName', true, true);
+      const { friendlyName } = town;
+
+      const town2 = createTownForTesting('friendlyName2', true, true);
+      const { friendlyName: friendlyName2 } = town2;
+
+      const res = CoveyTownsStore.getInstance().mergeTowns(town.coveyTownID, 'fakeLOL', town.townUpdatePassword, 
+        'newTownFriendlyName', false, false);
+      expect(res)
+        .toBeUndefined();
+      expect(town.friendlyName)
+        .toBe(friendlyName);
+      expect(town2.friendlyName)
+        .toBe(friendlyName2);
+      expect(town.isPubliclyListed)
+        .toBe(true);
+      expect(town2.isPubliclyListed)
+        .toBe(true); 
+      expect(town.isMergeable)
+        .toBe(true);
+      expect(town2.isMergeable)
+        .toBe(true);
+    });
+    it('checking that mergeTowns has expected values', async () => {
+      const town = createTownForTesting('friendlyName', true, true);
+      const town2 = createTownForTesting('friendlyName2', true, true);
+
+      setTimeout(() => {
+        const res = CoveyTownsStore.getInstance().mergeTowns(town.coveyTownID, town2.coveyTownID, town.townUpdatePassword, 
+          'newTownFriendlyName', false, false);
+        expect(res).toBeDefined();
+        expect(town.friendlyName)
+          .toBe('newTownFriendlyName');
+        expect(town.isPubliclyListed)
+          .toBe(false);
+        expect(town.isMergeable)
+          .toBe(false);
+        
+      }, 8000);
     });
   });
 });
