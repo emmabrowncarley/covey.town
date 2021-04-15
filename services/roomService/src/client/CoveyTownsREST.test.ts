@@ -31,14 +31,24 @@ describe('TownsServiceAPIREST', () => {
   let server: http.Server;
   let apiClient: TownsServiceClient;
 
-  async function createTownForTesting(friendlyNameToUse?: string, isPublic = false): Promise<TestTownData> {
+  async function createTownForTesting(friendlyNameToUse?: string, isPublic = false, isMergeable?: boolean): Promise<TestTownData> {
     const friendlyName = friendlyNameToUse !== undefined ? friendlyNameToUse :
       `${isPublic ? 'Public' : 'Private'}TestingTown=${nanoid()}`;
-    const ret = await apiClient.createTown({
-      friendlyName,
-      isPubliclyListed: isPublic,
-      isMergeable: true,
-    });
+    let ret;
+    if (isMergeable !== undefined) {
+      ret = await apiClient.createTown({
+        friendlyName,
+        isPubliclyListed: isPublic,
+        isMergeable: isMergeable,
+      });
+    } else {
+      ret = await apiClient.createTown({
+        friendlyName,
+        isPubliclyListed: isPublic,
+        isMergeable: true,
+      });
+    }
+    
     return {
       friendlyName,
       isPubliclyListed: isPublic,
@@ -236,6 +246,155 @@ describe('TownsServiceAPIREST', () => {
       expect(res2.coveyUserID)
         .toBeDefined();
 
+    });
+  });
+  describe('mergeTowns', () => {
+    it('Requested coveyTownID is blank', async () => {
+      const pubTown1 = await createTownForTesting(undefined, true);
+      const pubTown2 = await createTownForTesting(undefined, true);
+
+      expectTownListMatches(await apiClient.listTowns(), pubTown1);
+      expectTownListMatches(await apiClient.listTowns(), pubTown2);
+      try {
+        await apiClient.mergeTowns({
+          destinationCoveyTownID: pubTown1.coveyTownID,
+          requestedCoveyTownID: '',
+          coveyTownPassword: pubTown1.townUpdatePassword, 
+          newTownFriendlyName: 'mergedTown', 
+          newTownIsPubliclyListed: true, 
+          newTownIsMergeable: true
+        })
+        fail('request town id is blank');
+      } catch (err) {
+        expect(err.toString()).toBe('Error: Error processing request: Please specify a town to merge with')
+      }
+    });
+    it('requested town does not exist', async () => {
+      const pubTown1 = await createTownForTesting(undefined, true);
+      const pubTown2 = await createTownForTesting(undefined, true);
+
+      expectTownListMatches(await apiClient.listTowns(), pubTown1);
+      expectTownListMatches(await apiClient.listTowns(), pubTown2);
+      try {
+        await apiClient.mergeTowns({
+          destinationCoveyTownID: pubTown1.coveyTownID,
+          requestedCoveyTownID: 'does not exist',
+          coveyTownPassword: pubTown1.townUpdatePassword, 
+          newTownFriendlyName: 'mergedTown', 
+          newTownIsPubliclyListed: true, 
+          newTownIsMergeable: true
+        })
+        fail('request town id is blank');
+      } catch (err) {
+        expect(err.toString()).toBe('Error: Error processing request: No such town')
+      }
+    });
+    it('destination town does not exist', async () => {
+      const pubTown1 = await createTownForTesting(undefined, true);
+      const pubTown2 = await createTownForTesting(undefined, true);
+
+      expectTownListMatches(await apiClient.listTowns(), pubTown1);
+      expectTownListMatches(await apiClient.listTowns(), pubTown2);
+      try {
+        await apiClient.mergeTowns({
+          destinationCoveyTownID: 'does not exist',
+          requestedCoveyTownID: pubTown2.coveyTownID,
+          coveyTownPassword: pubTown1.townUpdatePassword, 
+          newTownFriendlyName: 'mergedTown', 
+          newTownIsPubliclyListed: true, 
+          newTownIsMergeable: true
+        })
+        fail('request town id is blank');
+      } catch (err) {
+        expect(err.toString()).toBe('Error: Error processing request: No such town')
+      }
+    });
+    it('Trying to merge with a nonmergeable town', async () => {
+      const pubTown1 = await createTownForTesting(undefined, true);
+      const pubTown2 = await createTownForTesting(undefined, true, false);
+
+      expectTownListMatches(await apiClient.listTowns(), pubTown1);
+      expectTownListMatches(await apiClient.listTowns(), pubTown2);
+      try {
+        await apiClient.mergeTowns({
+          destinationCoveyTownID: pubTown1.coveyTownID,
+          requestedCoveyTownID: pubTown2.coveyTownID,
+          coveyTownPassword: pubTown1.townUpdatePassword, 
+          newTownFriendlyName: 'mergedTown', 
+          newTownIsPubliclyListed: true, 
+          newTownIsMergeable: true
+        })
+        fail('request town id is blank');
+      } catch (err) {
+        expect(err.toString()).toBe('Error: Error processing request: Specified town cannot be merged with. Please select a different town')
+      }
+    });
+    // it('Too big occupancy', async () => {
+    //   const pubTown1 = await createTownForTesting(undefined, true);
+    //   const pubTown2 = await createTownForTesting(undefined, true);
+
+    //   const towns = (await apiClient.listTowns()).towns;
+    //   const town1 = towns.filter((town) => town.coveyTownID === pubTown1.coveyTownID);
+    //   town1[0].currentOccupancy = 49;
+    //   console.log(town1[0].currentOccupancy)
+
+    //   const town2 = towns.filter((town) => town.coveyTownID === pubTown2.coveyTownID);
+    //   town2[0].currentOccupancy = 2;
+    //   console.log(town2[0].currentOccupancy);
+
+    //   try {
+    //     await apiClient.mergeTowns({
+    //       destinationCoveyTownID: pubTown1.coveyTownID,
+    //       requestedCoveyTownID: pubTown2.coveyTownID,
+    //       coveyTownPassword: pubTown1.townUpdatePassword, 
+    //       newTownFriendlyName: 'mergedTown', 
+    //       newTownIsPubliclyListed: true, 
+    //       newTownIsMergeable: true
+    //     });
+    //     fail('request town id is blank');
+    //   } catch (err) {
+    //     expect(err.toString()).toBe('Error: Error processing request: Specified town cannot be merged with. Please select a different town')
+    //   }
+    // });
+    it('Password is wrong', async () => {
+      const pubTown1 = await createTownForTesting(undefined, true);
+      const pubTown2 = await createTownForTesting(undefined, true);
+
+      expectTownListMatches(await apiClient.listTowns(), pubTown1);
+      expectTownListMatches(await apiClient.listTowns(), pubTown2);
+      try {
+        await apiClient.mergeTowns({
+          destinationCoveyTownID: pubTown1.coveyTownID,
+          requestedCoveyTownID: pubTown2.coveyTownID,
+          coveyTownPassword: '', 
+          newTownFriendlyName: 'mergedTown', 
+          newTownIsPubliclyListed: true, 
+          newTownIsMergeable: true
+        })
+        fail('request town id is blank');
+      } catch (err) {
+        expect(err.toString()).toBe('Error: Error processing request: Invalid password. Please double check your town update password.');
+      }
+    });
+    it('Empty new town name', async () => {
+      const pubTown1 = await createTownForTesting(undefined, true);
+      const pubTown2 = await createTownForTesting(undefined, true);
+
+      expectTownListMatches(await apiClient.listTowns(), pubTown1);
+      expectTownListMatches(await apiClient.listTowns(), pubTown2);
+      try {
+        await apiClient.mergeTowns({
+          destinationCoveyTownID: pubTown1.coveyTownID,
+          requestedCoveyTownID: pubTown2.coveyTownID,
+          coveyTownPassword: pubTown1.townUpdatePassword, 
+          newTownFriendlyName: '', 
+          newTownIsPubliclyListed: true, 
+          newTownIsMergeable: true
+        })
+        fail('request town id is blank');
+      } catch (err) {
+        expect(err.toString()).toBe('Error: Error processing request: Must specify a name for the new town');
+      }
     });
   });
 });
