@@ -3,6 +3,7 @@ import assert from "assert";
 import {
   Box,
   Button,
+  Center,
   Checkbox,
   Flex,
   FormControl,
@@ -220,11 +221,12 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
             <Box maxH="500px" overflowY="scroll">
               <Table>
                 <TableCaption placement="bottom">Publicly Listed Towns</TableCaption>
-                <Thead><Tr><Th>Room Name</Th><Th>Room ID</Th><Th>Activity</Th></Tr></Thead>
+                <Thead><Tr><Th>Room Name</Th><Th>Room ID</Th><Center><Th>Mergeable?</Th></Center><Th>Activity</Th></Tr></Thead>
                 <Tbody>
                   {currentPublicTowns?.map((town) => (
                     <Tr key={town.coveyTownID}><Td role='cell'>{town.friendlyName}</Td><Td
                       role='cell'>{town.coveyTownID}</Td>
+                      <Center><Td role='cell' >{town.isMergeable ? '✓' : '✗'}</Td></Center>
                       <Td role='cell'>{town.currentOccupancy}/{town.maximumOccupancy}
                         <Button onClick={() => handleJoin(town.coveyTownID)}
                                 disabled={town.currentOccupancy >= town.maximumOccupancy}>Connect</Button></Td></Tr>

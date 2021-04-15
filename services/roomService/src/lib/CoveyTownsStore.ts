@@ -45,6 +45,7 @@ export default class CoveyTownsStore {
         friendlyName: townController.friendlyName,
         currentOccupancy: townController.occupancy,
         maximumOccupancy: townController.capacity,
+        isMergeable: townController.isMergeable,
       }));
   }
 

@@ -108,7 +108,8 @@ export type CoveyTownInfo = {
   friendlyName: string;
   coveyTownID: string;
   currentOccupancy: number;
-  maximumOccupancy: number
+  maximumOccupancy: number;
+  isMergeable?: boolean;
 };
 
 export default class TownsServiceClient {
