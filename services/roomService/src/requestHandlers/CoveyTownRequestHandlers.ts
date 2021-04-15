@@ -183,6 +183,50 @@ export async function townCreateHandler(requestData: TownCreateRequest): Promise
 
 export async function townMergeRequestHandler(requestData: TownMergeRequest): Promise<ResponseEnvelope<Record<string, null>>> {
   const townsStore = CoveyTownsStore.getInstance();
+  if (requestData.requestedCoveyTownID === '') {
+    return {
+      isOK: false,
+      message: 'Please specify a town to merge with',
+    };
+  }
+  const destinationCoveyTownController = townsStore.getControllerForTown(requestData.destinationCoveyTownID);
+  if (!destinationCoveyTownController) {
+    return {
+      isOK: false,
+      message: 'No such town',
+    };
+  }
+  const requestedCoveyTownController = townsStore.getControllerForTown(requestData.requestedCoveyTownID);
+  if (!requestedCoveyTownController) {
+    return {
+      isOK: false,
+      message: 'No such town',
+    };
+  }
+  if (!requestedCoveyTownController.isMergeable) {
+    return {
+      isOK: false,
+      message: 'Specified town cannot be merged with. Please select a different town',
+    };
+  }
+  if (!requestedCoveyTownController.isJoinable) {
+    return {
+      isOK: false,
+      message: 'Specified town is currently undergoing a merge and cannot be merged with. Please select a different town',
+    };
+  }
+  if (destinationCoveyTownController.occupancy + requestedCoveyTownController.occupancy > destinationCoveyTownController.capacity ){
+    return {
+      isOK: false,
+      message: `The combined occupancy of these two towns is greater than ${destinationCoveyTownController.capacity} and cannot be merged at this time`,
+    };
+  }
+  if (requestData.newTownFriendlyName === ''){
+    return {
+      isOK: false,
+      message: 'Must specify a name for the new town',
+    };
+  }
   const mergedTown = townsStore.mergeTowns(requestData.destinationCoveyTownID, 
     requestData.requestedCoveyTownID, requestData.coveyTownPassword, 
     requestData.newTownFriendlyName, requestData.newTownIsPubliclyListed, 
@@ -195,7 +239,7 @@ export async function townMergeRequestHandler(requestData: TownMergeRequest): Pr
   }
   return {
     isOK: false,
-    message: 'could not merge',
+    message: 'Invalid password. Please double check your town update password.',
   };
 }
 
