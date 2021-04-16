@@ -28,7 +28,6 @@ import { CoveyAppUpdate, appStateReducer, defaultAppState } from './AppHelper'
 // import useLocalVideoToggle from './components/VideoCall/VideoFrontend/hooks/useLocalVideoToggle/useLocalVideoToggle';
 // import { useHasVideoInputDevices } from '../../../hooks/deviceHooks/deviceHooks';
 
-
 type IToast = {
   (options?: UseToastOptions | undefined): string | number | undefined;
   close: (id: ToastId) => void;
