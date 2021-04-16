@@ -128,6 +128,19 @@ export function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): C
       defaultState.townIDToMerge = state.townIDToMerge;
       return defaultState;
     case 'updateTownToMerge':
+      // nextState.socket?.disconnect();
+      // // defaultState = defaultAppState();
+      // // nextState.sessionToken = update.data.sessionToken;
+      // // nextState.myPlayerID = update.data.myPlayerID;
+      // // nextState.currentTownFriendlyName = update.data.townFriendlyName;
+      // // nextState.currentTownID = update.data.townID;
+      // // nextState.currentTownIsPubliclyListed = update.data.townIsPubliclyListed;
+      // // nextState.currentTownIsMergeable = update.data.townIsMergeable;
+      // // nextState.townIDToMerge = '';
+      // // nextState.userName = update.data.userName;
+      // // nextState.emitMovement = update.data.emitMovement;
+      // // nextState.socket = update.data.socket;
+      // // nextState.players = update.data.players;
       nextState.townIDToMerge = update.newTownIDToMerge;
       break;
     default:

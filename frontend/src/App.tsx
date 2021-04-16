@@ -25,6 +25,9 @@ import Player, { ServerPlayer, UserLocation } from './classes/Player';
 import { TownJoinResponse } from './classes/TownsServiceClient';
 import Video from './classes/Video/Video';
 import { CoveyAppUpdate, appStateReducer, defaultAppState } from './AppHelper'
+// import useLocalVideoToggle from './components/VideoCall/VideoFrontend/hooks/useLocalVideoToggle/useLocalVideoToggle';
+// import { useHasVideoInputDevices } from '../../../hooks/deviceHooks/deviceHooks';
+
 
 type IToast = {
   (options?: UseToastOptions | undefined): string | number | undefined;
@@ -33,6 +36,13 @@ type IToast = {
   update(id: ToastId, options: Pick<UseToastOptions, "position" | "onCloseComplete" | "duration" | "title" | "status" | "render" | "description" | "isClosable" | "variant">): void;
   isActive: (id: ToastId) => boolean | undefined;
 }
+
+// const SomeComponent = () => {  
+//   console.log('before toggle');
+//   const toggle = useLocalVideoToggle();
+//   console.log('after toggle');  
+// }
+
 
 async function GameController(initData: TownJoinResponse,
   dispatchAppUpdate: (update: CoveyAppUpdate) => void, toast?: IToast) {
@@ -67,6 +77,10 @@ async function GameController(initData: TownJoinResponse,
   socket.on('roomsMerged', (destinationTownID: string, requestedTownID: string, destinationFriendlyName: string, 
     requestedFriendlyName: string , newTownFriendlyName: string, newTownIsPubliclyListed: boolean, newTownIsMergeable: boolean) => {
     dispatchAppUpdate({ action: 'updateTownToMerge', newTownIDToMerge: destinationTownID});
+
+
+    // SomeComponent();
+    
 
     let startingCoveyTownID;
     let endingCoveyTownID;

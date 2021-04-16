@@ -4,6 +4,8 @@ import Player from '../types/Player';
 import { CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownListener from '../types/CoveyTownListener';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
+// import useLocalVideoToggle from '../../hooks/useLocalVideoToggle/useLocalVideoToggle';
+
 
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
@@ -237,6 +239,13 @@ export async function townMergeRequestHandler(requestData: TownMergeRequest): Pr
       message: 'Must specify a name for the new town',
     };
   }
+  if (requestData.coveyTownPassword !== townsStore.getControllerForTown(requestData.destinationCoveyTownID)?.townUpdatePassword) {
+    return {
+      isOK: false,
+      message: 'Invalid password. Please double check your town update password.',
+    };
+  }
+  
   const mergedTown = townsStore.mergeTowns(requestData.destinationCoveyTownID, 
     requestData.requestedCoveyTownID, requestData.coveyTownPassword, 
     requestData.newTownFriendlyName, requestData.newTownIsPubliclyListed, 
@@ -258,7 +267,7 @@ export async function townMergeRequestHandler(requestData: TownMergeRequest): Pr
   }
   return {
     isOK: false,
-    message: 'Invalid password. Please double check your town update password.',
+    message: 'Merge failed.',
   };
 }
 
@@ -307,7 +316,8 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     },
     onTownMerged(destinationTownID: string, requestedTownID: string, destinationFriendlyName: string, requestedFriendlyName: string, 
       newTownFriendlyName: string, newTownIsPubliclyListed: boolean, newTownIsMergeable: boolean) {
-        
+      // const { isEnabled: isVideoEnabled, toggleVideoEnabled } = useLocalVideoToggle();
+
       socket.emit('roomsMerged', destinationTownID, requestedTownID, destinationFriendlyName, 
         requestedFriendlyName, newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable);
     },

@@ -73,6 +73,7 @@ const TownMerging: React.FunctionComponent = () => {
   const toast = useToast();
   const handleMergeRequest = async () => {
     try {
+      closeMergeModal();
       await apiClient.mergeTowns({destinationCoveyTownID: currentTownID, 
                                   requestedCoveyTownID: townChosen, 
                                   coveyTownPassword: roomMergePassword,
@@ -80,7 +81,7 @@ const TownMerging: React.FunctionComponent = () => {
                                   newTownIsPubliclyListed: newTownIsPublic, 
                                   newTownIsMergeable
                                 });
-      closeMergeModal();
+      // closeMergeModal();
     } catch(err) {
       toast({
         title: 'Unable to merge towns',
