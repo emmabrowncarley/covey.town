@@ -419,14 +419,13 @@ describe('CoveyTownsStore', () => {
         const res = CoveyTownsStore.getInstance().mergeTowns(town.coveyTownID, town2.coveyTownID, town.townUpdatePassword, 
           'newTownFriendlyName', false, false);
         expect(res).toBeDefined();
-        expect(town.friendlyName)
-          .toBe('newTownFriendlyName');
+        expect(town.friendlyName).toBe('newTownFriendlyName');
         expect(town.isPubliclyListed)
           .toBe(false);
         expect(town.isMergeable)
           .toBe(false);
         
-      }, 8000);
+      }, 11000);
     });
   });
 });
