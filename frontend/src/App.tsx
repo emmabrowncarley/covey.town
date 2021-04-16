@@ -1,6 +1,6 @@
 import React, {
-  Dispatch, SetStateAction, useCallback, useEffect, useMemo, useReducer, useState,
-} from 'react';
+    Dispatch, SetStateAction, useCallback, useEffect, useMemo, useReducer, useState,
+  } from 'react';
 import './App.css';
 import { BrowserRouter } from 'react-router-dom';
 import { io } from 'socket.io-client';
@@ -16,7 +16,7 @@ import NearbyPlayersContext from './contexts/NearbyPlayersContext';
 import AppStateProvider, { useAppState } from './components/VideoCall/VideoFrontend/state';
 import useConnectionOptions from './components/VideoCall/VideoFrontend/utils/useConnectionOptions/useConnectionOptions';
 import UnsupportedBrowserWarning
-  from './components/VideoCall/VideoFrontend/components/UnsupportedBrowserWarning/UnsupportedBrowserWarning';
+  from './components/VideoCall/VideoFrontend/components/UnsupportedBrowserWarning/UnsupportedBrowserWarning';
 import { VideoProvider } from './components/VideoCall/VideoFrontend/components/VideoProvider';
 import ErrorDialog from './components/VideoCall/VideoFrontend/components/ErrorDialog/ErrorDialog';
 import theme from './components/VideoCall/VideoFrontend/theme';
@@ -25,8 +25,13 @@ import Player, { ServerPlayer, UserLocation } from './classes/Player';
 import { TownJoinResponse } from './classes/TownsServiceClient';
 import Video from './classes/Video/Video';
 import { CoveyAppUpdate, appStateReducer, defaultAppState } from './AppHelper'
-// import useLocalVideoToggle from './components/VideoCall/VideoFrontend/hooks/useLocalVideoToggle/useLocalVideoToggle';
-// import { useHasVideoInputDevices } from '../../../hooks/deviceHooks/deviceHooks';
+import ToggleVideoButton from './components/VideoCall/VideoFrontend/components/Buttons/ToggleVideoButton/ToggleVideoButton';
+import useTrack from './components/VideoCall/VideoFrontend/hooks/useTrack/useTrack';
+import usePublications from './components/VideoCall/VideoFrontend/hooks/usePublications/usePublications';
+import useLocalVideoToggle from './components/VideoCall/VideoFrontend/hooks/useLocalVideoToggle/useLocalVideoToggle';
+import useLocalTracks from './components/VideoCall/VideoFrontend/components/VideoProvider/useLocalTracks/useLocalTracks';
+import useVideoContext from './components/VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext';
+import LocalStorage_TwilioVideo from './classes/LocalStorage/TwilioVideo';
 
 type IToast = {
   (options?: UseToastOptions | undefined): string | number | undefined;
@@ -55,6 +60,24 @@ async function GameController(initData: TownJoinResponse,
   const roomName = video.townFriendlyName;
   assert(roomName);
 
+  const {
+    room: { localParticipant },
+    localVideoTrack: videoTrack,
+    getLocalVideoTrack,
+    removeLocalVideoTrack,
+  } = useVideoContext();
+  const [isPublishing, setIsPublishing] = useState(false);
+  
+  const stopVideo = useCallback(() => {
+    if (videoTrack) {
+      LocalStorage_TwilioVideo.twilioVideoLastCamera = videoTrack.mediaStreamTrack.getSettings().deviceId ?? null;
+      const localTrackPublication = localParticipant?.unpublishTrack(videoTrack);
+      // TODO: remove when SDK implements this event. See: https://issues.corp.twilio.com/browse/JSDK-2592
+      localParticipant?.emit('trackUnpublished', localTrackPublication);
+      removeLocalVideoTrack();
+    }
+  }, [localParticipant, removeLocalVideoTrack, videoTrack]);
+
   const socket = io(url, { auth: { token: sessionToken, coveyTownID: video.coveyTownID } });
   socket.on('newPlayer', (player: ServerPlayer) => {
     dispatchAppUpdate({
@@ -78,7 +101,7 @@ async function GameController(initData: TownJoinResponse,
     dispatchAppUpdate({ action: 'updateTownToMerge', newTownIDToMerge: destinationTownID});
 
 
-    // SomeComponent();
+    stopVideo();
     
 
     let startingCoveyTownID;
