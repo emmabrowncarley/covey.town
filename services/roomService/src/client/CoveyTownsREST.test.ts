@@ -14,8 +14,7 @@ type TestTownData = {
   friendlyName: string, coveyTownID: string,
   isPubliclyListed: boolean, townUpdatePassword: string, isMergeable?: boolean
 };
-// var i = 0;
-// var j = 0;
+
 function expectTownListMatches(towns: TownListResponse, town: TestTownData) {
   const matching = towns.towns.find(townInfo => townInfo.coveyTownID === town.coveyTownID);
   if (town.isPubliclyListed) {
