@@ -268,7 +268,7 @@ describe('Part 1 - Public room listing', () => {
       if (row) {
         const cells = within(row)
           .queryAllByRole('cell');
-        // Cell order: friendlyName, TownID, occupancy/join + button
+        // Cell order: friendlyName, TownID, mergeable, occupancy/join + button
         expect(cells.length)
           .toBe(4);
         expect(within(cells[0])
