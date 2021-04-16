@@ -99,7 +99,7 @@ export interface TownMergeRequest {
 /**
  * Response from the server for a Town merge request
  */
- export interface TownMergeResponse {
+export interface TownMergeResponse {
   coveyTownID: string;
   friendlyName: string;
   isPubliclyListed: boolean;
@@ -242,22 +242,21 @@ export async function townMergeRequestHandler(requestData: TownMergeRequest): Pr
     requestData.newTownFriendlyName, requestData.newTownIsPubliclyListed, 
     requestData.newTownIsMergeable);
     
-    if (mergedTown) {
-      return {
-        isOK: true,
-        response: {
-          coveyTownID: mergedTown.coveyTownID,
-          friendlyName: mergedTown.friendlyName,
-          isPubliclyListed: mergedTown.isPubliclyListed,
-          isMergeable: mergedTown.isMergeable,
-        },
-      };
-    }
+  if (mergedTown) {
     return {
-      isOK: false,
-      message: 'Invalid password. Please double check your town update password.',
+      isOK: true,
+      response: {
+        coveyTownID: mergedTown.coveyTownID,
+        friendlyName: mergedTown.friendlyName,
+        isPubliclyListed: mergedTown.isPubliclyListed,
+        isMergeable: mergedTown.isMergeable,
+      },
     };
-  
+  }
+  return {
+    isOK: false,
+    message: 'Invalid password. Please double check your town update password.',
+  };
 }
 
 export async function townDeleteHandler(requestData: TownDeleteRequest): Promise<ResponseEnvelope<Record<string, null>>> {

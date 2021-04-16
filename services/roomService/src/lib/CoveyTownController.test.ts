@@ -192,8 +192,7 @@ describe('CoveyTownController', () => {
       mockListeners.forEach(listener => 
         expect(listener.onTownMerged).toBeCalledWith(testingTown.coveyTownID, town2.coveyTownID, 
           testingTown.friendlyName, town2.friendlyName, 'newFriendlyName', true, true));
-
-    })
+    });
   });
   describe('townSubscriptionHandler', () => {
     const mockSocket = mock<Socket>();
