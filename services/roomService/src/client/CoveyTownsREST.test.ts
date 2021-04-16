@@ -333,6 +333,8 @@ describe('TownsServiceAPIREST', () => {
 
   describe('mergeTowns', () => {
     it('Successfully merges two towns', async () => {
+
+      jest.setTimeout(10000);
       const pubTown1 = await createTownForTesting(undefined, true, true);
       const pubTown2 = await createTownForTesting(undefined, true, true);
 
@@ -349,6 +351,7 @@ describe('TownsServiceAPIREST', () => {
       });
 
       expect(mergedTown.coveyTownID).toBe(pubTown1.coveyTownID);
+      expect(mergedTown.friendlyName).toBe('mergedTown');
 
     });
     it('Requested coveyTownID is blank', async () => {

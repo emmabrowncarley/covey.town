@@ -132,6 +132,7 @@ describe('TownServiceApiSocket', () => {
     await Promise.all([socketDisconnected, disconnectPromise2]);
   });
   it('Informs all players that town is merging', async () => {
+    jest.setTimeout(10000);
     const town1 = await createTownForTesting();
     const town2 = await createTownForTesting();
     const joinData = await apiClient.joinTown({coveyTownID: town1.coveyTownID, userName: nanoid()});

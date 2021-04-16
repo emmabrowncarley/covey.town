@@ -241,6 +241,9 @@ export async function townMergeRequestHandler(requestData: TownMergeRequest): Pr
     requestData.requestedCoveyTownID, requestData.coveyTownPassword, 
     requestData.newTownFriendlyName, requestData.newTownIsPubliclyListed, 
     requestData.newTownIsMergeable);
+
+  const pause = (ms: number) => new Promise(res => setTimeout(res, ms));
+  await pause(7000);
     
   if (mergedTown) {
     return {

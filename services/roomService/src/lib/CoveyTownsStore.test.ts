@@ -415,17 +415,22 @@ describe('CoveyTownsStore', () => {
       const town = createTownForTesting('friendlyName', true, true);
       const town2 = createTownForTesting('friendlyName2', true, true);
 
-      setTimeout(() => {
-        const res = CoveyTownsStore.getInstance().mergeTowns(town.coveyTownID, town2.coveyTownID, town.townUpdatePassword, 
-          'newTownFriendlyName', false, false);
-        expect(res).toBeDefined();
-        expect(town.friendlyName).toBe('newTownFriendlyName');
-        expect(town.isPubliclyListed)
-          .toBe(false);
-        expect(town.isMergeable)
-          .toBe(false);
+      jest.setTimeout(15000);
+
+      const res2 = CoveyTownsStore.getInstance().mergeTowns(town.coveyTownID, town2.coveyTownID, town.townUpdatePassword, 
+        'newTownFriendlyName', false, false);
+
+      const pause = (ms: number) => new Promise(res => setTimeout(res, ms));
+      await pause(7000);
+      
+      expect(res2).toBeDefined();
+      expect(town.friendlyName)
+        .toBe('newTownFriendlyName');
+      expect(town.isPubliclyListed)
+        .toBe(false);
+      expect(town.isMergeable)
+        .toBe(false);
         
-      }, 11000);
     });
   });
 });
