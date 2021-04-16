@@ -28,7 +28,7 @@ export default class CoveyTownsStore {
   }
 
   getMergeableTowns(): CoveyTownList {
-    return this._towns.filter(townController => 
+    return this._towns.filter(townController =>
       townController.isPubliclyListed && townController.isMergeable)
       .map(townController => ({
         coveyTownID: townController.coveyTownID,
@@ -78,29 +78,33 @@ export default class CoveyTownsStore {
     return false;
   }
 
-  mergeTowns(destinationCoveyTownID: string, requestedCoveyTownID: string, 
-    coveyTownPassword: string, newTownFriendlyName: string, 
+  mergeTowns(destinationCoveyTownID: string, requestedCoveyTownID: string,
+    coveyTownPassword: string, newTownFriendlyName: string,
     newTownIsPubliclyListed: boolean, newTownIsMergeable: boolean): CoveyTownController | undefined {
-  
+
     const destinationTown = this.getControllerForTown(destinationCoveyTownID);
     const requestedTown = this.getControllerForTown(requestedCoveyTownID);
     if (destinationTown && passwordMatches(coveyTownPassword, destinationTown.townUpdatePassword)
       && requestedTown) {
-      destinationTown.townsMerged(destinationTown.coveyTownID, requestedTown.coveyTownID, destinationTown.friendlyName, 
-        requestedTown.friendlyName, newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable);
-      requestedTown.townsMerged(destinationTown.coveyTownID, requestedTown.coveyTownID, destinationTown.friendlyName, 
-        requestedTown.friendlyName, newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable);
 
-      this.updateTown(destinationCoveyTownID, destinationTown.townUpdatePassword, undefined, undefined, undefined, false);
+      this.updateTown(destinationCoveyTownID, destinationTown.townUpdatePassword, undefined, undefined, undefined, true);
       this.updateTown(requestedCoveyTownID, requestedTown.townUpdatePassword, undefined, undefined, undefined, false);
 
+      destinationTown.townsAreMerging(destinationTown.coveyTownID, requestedTown.coveyTownID, destinationTown.friendlyName,
+        requestedTown.friendlyName, newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable);
+      requestedTown.townsAreMerging(destinationTown.coveyTownID, requestedTown.coveyTownID, destinationTown.friendlyName,
+        requestedTown.friendlyName, newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable);
+
       setTimeout(() => {
-        this.updateTown(destinationTown.coveyTownID, destinationTown.townUpdatePassword, 
+        destinationTown.townsMerged(destinationTown.coveyTownID, requestedTown.coveyTownID, destinationTown.friendlyName,
+          requestedTown.friendlyName, newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable);
+        requestedTown.townsMerged(destinationTown.coveyTownID, requestedTown.coveyTownID, destinationTown.friendlyName,
+          requestedTown.friendlyName, newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable);
+        this.updateTown(destinationTown.coveyTownID, destinationTown.townUpdatePassword,
           newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable, true);
-        destinationTown.disconnectAllPlayers();
         this.deleteTown(requestedTown.coveyTownID, requestedTown.townUpdatePassword);
       }, 7000);
-        
+      
       return destinationTown;
     }
     return undefined;

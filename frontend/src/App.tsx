@@ -25,6 +25,7 @@ import Player, { ServerPlayer, UserLocation } from './classes/Player';
 import { TownJoinResponse } from './classes/TownsServiceClient';
 import Video from './classes/Video/Video';
 import { CoveyAppUpdate, appStateReducer, defaultAppState } from './AppHelper'
+import useVideoContext from "./components/VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext";
 
 type IToast = {
   (options?: UseToastOptions | undefined): string | number | undefined;
@@ -64,38 +65,21 @@ async function GameController(initData: TownJoinResponse,
   socket.on('disconnect', () => {
     dispatchAppUpdate({ action: 'disconnect' });
   });
-  socket.on('roomsMerged', (destinationTownID: string, requestedTownID: string, destinationFriendlyName: string, 
+  socket.on('roomsMerging', (destinationTownID: string, requestedTownID: string, destinationFriendlyName: string, 
     requestedFriendlyName: string , newTownFriendlyName: string, newTownIsPubliclyListed: boolean, newTownIsMergeable: boolean) => {
-    dispatchAppUpdate({ action: 'updateTownToMerge', newTownIDToMerge: destinationTownID});
-
-    let startingCoveyTownID;
-    let endingCoveyTownID;
-    let startingFriendlyName;
-    let endingFriendlyName;
-    if (destinationTownID === video.coveyTownID) {
-      startingCoveyTownID = destinationTownID;
-      endingCoveyTownID = requestedTownID;
-      startingFriendlyName = destinationFriendlyName;
-      endingFriendlyName = requestedFriendlyName;
-    } else {
-      startingCoveyTownID = requestedTownID;
-      endingCoveyTownID = destinationTownID
-      startingFriendlyName = requestedFriendlyName;
-      endingFriendlyName = destinationFriendlyName;
-    }
     if (toast) {
       toast({
         title: 'Town is merging with another town',
-        description: `Town ${startingFriendlyName} (${startingCoveyTownID}) is merging with town ${endingFriendlyName} 
-        (${endingCoveyTownID}) momentarily! The new town will be called "${newTownFriendlyName}", 
+        description: `Town ${destinationFriendlyName} (${destinationTownID}) is merging with town ${requestedFriendlyName}
+        (${requestedTownID}) momentarily! The new town will be called "${newTownFriendlyName}",
         ${newTownIsPubliclyListed ? '✓' : '✗'} Publicly Listed,
         and ${newTownIsMergeable ? '✓' : '✗'} Mergeable`,
         status: 'success',
         isClosable: true,
-        duration: 10000,
-      }) 
+        duration: 7000,
+      })
     }
-  })
+  });
 
   const emitMovement = (location: UserLocation) => {
     socket.emit('playerMovement', location);
@@ -124,6 +108,7 @@ async function GameController(initData: TownJoinResponse,
 function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefined>> }) {
   const [appState, dispatchAppUpdate] = useReducer(appStateReducer, defaultAppState());
   const toast = useToast();
+  const {room} = useVideoContext();
 
   const setupGameController = useCallback(async (initData: TownJoinResponse) => {
     await GameController(initData, dispatchAppUpdate, toast);
@@ -132,6 +117,30 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
   const videoInstance = Video.instance();
 
   const { setOnDisconnect } = props;
+
+  useEffect(()=>{
+    if(!appState.socket){
+      return;
+    }
+    appState.socket.off('roomsMerged');
+    appState.socket.on('roomsMerged', async (destinationTownID: string, requestedTownID: string, destinationFriendlyName: string,
+                              requestedFriendlyName: string , newTownFriendlyName: string, newTownIsPubliclyListed: boolean, newTownIsMergeable: boolean) => {
+      await room.disconnect();
+      dispatchAppUpdate({ action: 'updateTownToMerge', newTownIDToMerge: destinationTownID});
+      if (toast) {
+        toast({
+          title: 'Town merge was successful!',
+          description: `The new town is called "${newTownFriendlyName}" (${destinationTownID}),
+        ${newTownIsPubliclyListed ? '✓' : '✗'} Publicly Listed,
+        and ${newTownIsMergeable ? '✓' : '✗'} Mergeable`,
+          status: 'success',
+          isClosable: true,
+          duration: 10000,
+        })
+      }
+    })
+
+  }, [appState.socket, appState.currentTownID, room, toast]);
   useEffect(() => {
     setOnDisconnect(() => async () => { // Here's a great gotcha: https://medium.com/swlh/how-to-store-a-function-with-the-usestate-hook-in-react-8a88dd4eede1
       dispatchAppUpdate({ action: 'disconnect' });

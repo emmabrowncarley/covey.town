@@ -73,6 +73,7 @@ const TownMerging: React.FunctionComponent = () => {
   const toast = useToast();
   const handleMergeRequest = async () => {
     try {
+      closeMergeModal();
       await apiClient.mergeTowns({destinationCoveyTownID: currentTownID, 
                                   requestedCoveyTownID: townChosen, 
                                   coveyTownPassword: roomMergePassword,
@@ -80,7 +81,6 @@ const TownMerging: React.FunctionComponent = () => {
                                   newTownIsPubliclyListed: newTownIsPublic, 
                                   newTownIsMergeable
                                 });
-      closeMergeModal();
     } catch(err) {
       toast({
         title: 'Unable to merge towns',
@@ -96,7 +96,7 @@ const TownMerging: React.FunctionComponent = () => {
     </MenuItem>
     <Modal isOpen={isOpen} onClose={closeMergeModal}>
       <ModalOverlay/>
-      <ModalContent style={{ maxWidth:'40rem' }}>
+      <ModalContent style={{ maxWidth:'42rem' }}>
         <Heading p="4" as="h2" size="lg">Merge { currentTownFriendlyName } with another town?</Heading>
         <Text fontSize="sm" color="red.600" py="2" px="6">**All players from both rooms will be transported into a new room. The CoveyTownID and password for this current room will transfer over to the new room.**</Text>
         <Text py="2" px="6" fontSize="md" fontWeight="bold"> Your Town Occupancy: {currentTownOccupancy}</Text>

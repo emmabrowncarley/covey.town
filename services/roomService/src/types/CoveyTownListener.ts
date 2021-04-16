@@ -28,7 +28,7 @@ export default interface CoveyTownListener {
   onTownDestroyed(): void;
 
   /**
-   * Called when a player requests that their town be merged with another town
+   * Called when two towns are being merged
    * 
    * @param destinationTownID the town ID of the destination town
    * @param requestedTownID the town ID of the town requested to merge
@@ -39,5 +39,19 @@ export default interface CoveyTownListener {
    * @param newTownIsMergeable whether or not the new town is mergeable
    */
   onTownMerged(destinationTownID: string, requestedTownID: string, destinationFriendlyName: string, requestedFriendlyName: string, 
+    newTownFriendlyName: string, newTownIsPubliclyListed: boolean, newTownIsMergeable: boolean): void;
+
+  /**
+   * Called when a player requests that their town be merged with another town
+   * 
+   * @param destinationTownID the town ID of the destination town
+   * @param requestedTownID the town ID of the town requested to merge
+   * @param destinationFriendlyName the friendly name of the destination town
+   * @param requestedFriendlyName the friendly name of the town requested to merge
+   * @param newTownFriendlyName the friendly name of the new town
+   * @param newTownIsPubliclyListed whether or not the new town is publicly listed
+   * @param newTownIsMergeable whether or not the new town is mergeable
+   */
+  onTownMerging(destinationTownID: string, requestedTownID: string, destinationFriendlyName: string, requestedFriendlyName: string, 
     newTownFriendlyName: string, newTownIsPubliclyListed: boolean, newTownIsMergeable: boolean): void;
 }
