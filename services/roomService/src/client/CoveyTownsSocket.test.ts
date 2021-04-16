@@ -131,4 +131,18 @@ describe('TownServiceApiSocket', () => {
     await apiClient.deleteTown({coveyTownID: town.coveyTownID, coveyTownPassword: town.townUpdatePassword});
     await Promise.all([socketDisconnected, disconnectPromise2]);
   });
+  it('Informs all players that town is merging', async () => {
+    jest.setTimeout(10000);
+    const town1 = await createTownForTesting();
+    const town2 = await createTownForTesting();
+    const joinData = await apiClient.joinTown({coveyTownID: town1.coveyTownID, userName: nanoid()});
+    const joinData2 = await apiClient.joinTown({coveyTownID: town2.coveyTownID, userName: nanoid()});
+    const socket1 = TestUtils.createSocketClient(server, joinData.coveySessionToken, town1.coveyTownID);
+    const socket2 = TestUtils.createSocketClient(server, joinData2.coveySessionToken, town2.coveyTownID);
+    await Promise.all([socket1.socketConnected, socket2.socketConnected]);
+    await apiClient.mergeTowns({destinationCoveyTownID: town1.coveyTownID, requestedCoveyTownID: town2.coveyTownID, 
+      coveyTownPassword: town1.townUpdatePassword, newTownFriendlyName: 'newFriendlyName',  newTownIsPubliclyListed: true, 
+      newTownIsMergeable: true});
+    await Promise.all([socket1.onTownMerged, socket2.onTownMerged]);
+  });
 });

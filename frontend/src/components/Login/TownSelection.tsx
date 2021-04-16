@@ -38,8 +38,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   const [currentPublicTowns, setCurrentPublicTowns] = useState<CoveyTownInfo[]>();
   const { connect } = useVideoContext();
   const { apiClient, townIDToMerge } = useCoveyAppState();
-  // eslint-disable-next-line
-  const [appState, dispatchAppUpdate] = useReducer(appStateReducer, defaultAppState());
+  const [, dispatchAppUpdate] = useReducer(appStateReducer, defaultAppState());
   const toast = useToast();
 
   const handleJoin = useCallback(async (coveyRoomID: string, resetToken = false) => {
@@ -221,11 +220,12 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
             <Box maxH="500px" overflowY="scroll">
               <Table>
                 <TableCaption placement="bottom">Publicly Listed Towns</TableCaption>
-                <Thead><Tr><Th>Room Name</Th><Th>Room ID</Th><Th>Activity</Th></Tr></Thead>
+                <Thead><Tr><Th>Room Name</Th><Th>Room ID</Th><Th>Mergeable?</Th><Th>Activity</Th></Tr></Thead>
                 <Tbody>
                   {currentPublicTowns?.map((town) => (
                     <Tr key={town.coveyTownID}><Td role='cell'>{town.friendlyName}</Td><Td
                       role='cell'>{town.coveyTownID}</Td>
+                      <Td role='cell' >{town.isMergeable ? '✓' : '✗'}</Td>
                       <Td role='cell'>{town.currentOccupancy}/{town.maximumOccupancy}
                         <Button onClick={() => handleJoin(town.coveyTownID)}
                                 disabled={town.currentOccupancy >= town.maximumOccupancy}>Connect</Button></Td></Tr>

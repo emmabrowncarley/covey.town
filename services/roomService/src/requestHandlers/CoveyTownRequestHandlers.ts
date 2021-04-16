@@ -90,10 +90,20 @@ export interface TownUpdateRequest {
 export interface TownMergeRequest {
   destinationCoveyTownID: string;
   requestedCoveyTownID: string;
-  coveyTownPassword: string, 
-  newTownFriendlyName: string, 
-  newTownIsPubliclyListed: boolean, 
-  newTownIsMergeable: boolean
+  coveyTownPassword: string;
+  newTownFriendlyName: string;
+  newTownIsPubliclyListed: boolean;
+  newTownIsMergeable: boolean;
+}
+
+/**
+ * Response from the server for a Town merge request
+ */
+export interface TownMergeResponse {
+  coveyTownID: string;
+  friendlyName: string;
+  isPubliclyListed: boolean;
+  isMergeable: boolean;
 }
 
 /**
@@ -181,7 +191,7 @@ export async function townCreateHandler(requestData: TownCreateRequest): Promise
   };
 }
 
-export async function townMergeRequestHandler(requestData: TownMergeRequest): Promise<ResponseEnvelope<Record<string, null>>> {
+export async function townMergeRequestHandler(requestData: TownMergeRequest): Promise<ResponseEnvelope<TownMergeResponse>> {
   const townsStore = CoveyTownsStore.getInstance();
   if (requestData.requestedCoveyTownID === '') {
     return {
@@ -231,10 +241,19 @@ export async function townMergeRequestHandler(requestData: TownMergeRequest): Pr
     requestData.requestedCoveyTownID, requestData.coveyTownPassword, 
     requestData.newTownFriendlyName, requestData.newTownIsPubliclyListed, 
     requestData.newTownIsMergeable);
+
+  const pause = (ms: number) => new Promise(res => setTimeout(res, ms));
+  await pause(7000);
+    
   if (mergedTown) {
     return {
       isOK: true,
-      response: {},
+      response: {
+        coveyTownID: mergedTown.coveyTownID,
+        friendlyName: mergedTown.friendlyName,
+        isPubliclyListed: mergedTown.isPubliclyListed,
+        isMergeable: mergedTown.isMergeable,
+      },
     };
   }
   return {

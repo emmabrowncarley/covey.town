@@ -39,6 +39,42 @@ describe('CoveyTownController', () => {
     expect(townController.friendlyName)
       .toBe(townName);
   });
+  it('constructor should set the isMergeable property to be false if not given', () => { // Included in handout
+    const townName = `FriendlyNameTest-${nanoid()}`;
+    const townController = new CoveyTownController(townName, false);
+    expect(townController.isMergeable)
+      .toBe(false);
+  });
+  it('constructor should set the isMergeable property to be false if given false', () => { // Included in handout
+    const townName = `FriendlyNameTest-${nanoid()}`;
+    const townController = new CoveyTownController(townName, false, false);
+    expect(townController.isMergeable)
+      .toBe(false);
+  });
+  it('constructor should set the isMergeable property to be true if given true', () => { // Included in handout
+    const townName = `FriendlyNameTest-${nanoid()}`;
+    const townController = new CoveyTownController(townName, false, true);
+    expect(townController.isMergeable)
+      .toBe(true);
+  });
+  it('isJoinable constructed to be true and then set isJoinable to false', () => { 
+    const townName = `FriendlyNameTest-${nanoid()}`;
+    const townController = new CoveyTownController(townName, false);
+    expect(townController.isJoinable)
+      .toBe(true);
+    townController.isJoinable = false;
+    expect(townController.isJoinable)
+      .toBe(false);
+  });
+  it('set isMergeable', () => { 
+    const townName = `FriendlyNameTest-${nanoid()}`;
+    const townController = new CoveyTownController(townName, false);
+    expect(townController.isMergeable)
+      .toBe(false);
+    townController.isMergeable = true;
+    expect(townController.isMergeable)
+      .toBe(true);
+  });
   describe('addPlayer', () => { // Included in handout
     it('should use the coveyTownID and player ID properties when requesting a video token',
       async () => {
@@ -135,6 +171,27 @@ describe('CoveyTownController', () => {
       testingTown.disconnectAllPlayers();
       expect(listenerRemoved.onTownDestroyed).not.toBeCalled();
 
+    });
+    it('should notify all listeners of both towns when townsMerged is called', async () => {
+      const town2 = new CoveyTownController('town2', false);
+
+      const player1 = new Player('test player');
+      testingTown.addPlayer(player1);
+
+      const player2 = new Player('test player');
+      town2.addPlayer(player2);
+
+      mockListeners.forEach(listener => {
+        testingTown.addTownListener(listener);
+        town2.addTownListener(listener);
+      });
+      
+      town2.townsMerged(testingTown.coveyTownID, town2.coveyTownID, testingTown.friendlyName, town2.friendlyName, 'newFriendlyName', true, true);
+      testingTown.townsMerged(town2.coveyTownID, testingTown.coveyTownID, town2.friendlyName, testingTown.friendlyName, 'newFriendlyName', true, true);
+
+      mockListeners.forEach(listener => 
+        expect(listener.onTownMerged).toBeCalledWith(testingTown.coveyTownID, town2.coveyTownID, 
+          testingTown.friendlyName, town2.friendlyName, 'newFriendlyName', true, true));
     });
   });
   describe('townSubscriptionHandler', () => {

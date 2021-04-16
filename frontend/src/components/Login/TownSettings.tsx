@@ -64,7 +64,8 @@ const TownSettings: React.FunctionComponent = () => {
           coveyTownID: currentTownID,
           coveyTownPassword: roomUpdatePassword,
           friendlyName,
-          isPubliclyListed
+          isPubliclyListed,
+          isMergeable,
         });
         toast({
           title: 'Town updated',

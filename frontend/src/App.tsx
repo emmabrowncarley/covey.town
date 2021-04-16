@@ -4,7 +4,7 @@ import React, {
 import './App.css';
 import { BrowserRouter } from 'react-router-dom';
 import { io } from 'socket.io-client';
-import { ChakraProvider, useToast } from '@chakra-ui/react';
+import { ChakraProvider, CloseAllToastsOptions, ToastId, useToast, UseToastOptions } from '@chakra-ui/react';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import assert from 'assert';
 import WorldMap from './components/world/WorldMap';
@@ -26,9 +26,16 @@ import { TownJoinResponse } from './classes/TownsServiceClient';
 import Video from './classes/Video/Video';
 import { CoveyAppUpdate, appStateReducer, defaultAppState } from './AppHelper'
 
+type IToast = {
+  (options?: UseToastOptions | undefined): string | number | undefined;
+  close: (id: ToastId) => void;
+  closeAll: (options?: CloseAllToastsOptions | undefined) => void;
+  update(id: ToastId, options: Pick<UseToastOptions, "position" | "onCloseComplete" | "duration" | "title" | "status" | "render" | "description" | "isClosable" | "variant">): void;
+  isActive: (id: ToastId) => boolean | undefined;
+}
+
 async function GameController(initData: TownJoinResponse,
-  // eslint-disable-next-line
-  dispatchAppUpdate: (update: CoveyAppUpdate) => void, toast?: any) {
+  dispatchAppUpdate: (update: CoveyAppUpdate) => void, toast?: IToast) {
   // Now, set up the game sockets
   const gamePlayerID = initData.coveyUserID;
   const sessionToken = initData.coveySessionToken;

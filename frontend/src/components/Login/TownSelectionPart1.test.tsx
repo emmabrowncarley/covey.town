@@ -268,16 +268,16 @@ describe('Part 1 - Public room listing', () => {
       if (row) {
         const cells = within(row)
           .queryAllByRole('cell');
-        // Cell order: friendlyName, TownID, occupancy/join + button
+        // Cell order: friendlyName, TownID, mergeable, occupancy/join + button
         expect(cells.length)
-          .toBe(3);
+          .toBe(4);
         expect(within(cells[0])
           .queryByText(town.friendlyName))
           .toBeInTheDocument();
         expect(within(cells[1])
           .queryByText(town.coveyTownID))
           .toBeInTheDocument();
-        expect(within(cells[2])
+        expect(within(cells[3])
           .queryByText(`${town.currentOccupancy}/${town.maximumOccupancy}`))
           .toBeInTheDocument();
       } else {

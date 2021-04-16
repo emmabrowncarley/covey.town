@@ -57,6 +57,16 @@ export interface TownMergeRequest {
 }
 
 /**
+ * Response from the server for a Town merge request
+ */
+ export interface TownMergeResponse {
+  coveyTownID: string;
+  friendlyName: string;
+  isPubliclyListed: boolean;
+  isMergeable: boolean;
+}
+
+/**
  * Response from the server for a Town create request
  */
 export interface TownCreateResponse {
@@ -106,7 +116,8 @@ export type CoveyTownInfo = {
   friendlyName: string;
   coveyTownID: string;
   currentOccupancy: number;
-  maximumOccupancy: number
+  maximumOccupancy: number;
+  isMergeable?: boolean;
 };
 
 export default class TownsServiceClient {

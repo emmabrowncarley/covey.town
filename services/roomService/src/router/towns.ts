@@ -137,6 +137,7 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
         isPubliclyListed: req.body.isPubliclyListed,
         friendlyName: req.body.friendlyName,
         coveyTownPassword: req.body.coveyTownPassword,
+        isMergeable: req.body.isMergeable,
       });
       res.status(StatusCodes.OK)
         .json(result);

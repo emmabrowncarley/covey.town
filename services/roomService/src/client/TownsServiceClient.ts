@@ -2,7 +2,6 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import assert from 'assert';
 import { UserLocation } from '../CoveyTypes';
 
-
 export type ServerPlayer = { _id: string, _userName: string, location: UserLocation };
 
 /**
@@ -58,6 +57,15 @@ export interface TownMergeRequest {
   newTownIsPubliclyListed: boolean, 
   newTownIsMergeable: boolean
 }
+/**
+ * Response from the server for a Town merge request
+ */
+export interface TownMergeResponse {
+  coveyTownID: string;
+  friendlyName: string;
+  isPubliclyListed: boolean;
+  isMergeable: boolean;
+}
 
 /**
  * Response from the server for a Town create request
@@ -108,7 +116,8 @@ export type CoveyTownInfo = {
   friendlyName: string;
   coveyTownID: string;
   currentOccupancy: number;
-  maximumOccupancy: number
+  maximumOccupancy: number;
+  isMergeable?: boolean;
 };
 
 export default class TownsServiceClient {
@@ -141,8 +150,8 @@ export default class TownsServiceClient {
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
 
-  async mergeTowns(requestData: TownMergeRequest): Promise<void> {
-    const responseWrapper = await this._axios.patch<ResponseEnvelope<void>>('/towns', requestData);
+  async mergeTowns(requestData: TownMergeRequest): Promise<TownMergeResponse> {
+    const responseWrapper = await this._axios.patch<ResponseEnvelope<TownMergeResponse>>('/towns', requestData);
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
 

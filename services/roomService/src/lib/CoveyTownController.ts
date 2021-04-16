@@ -92,7 +92,7 @@ export default class CoveyTownController {
 
   private _capacity: number;
 
-  constructor(friendlyName: string, isPubliclyListed: boolean, isMergeable?: boolean, isJoinable?: boolean) {
+  constructor(friendlyName: string, isPubliclyListed: boolean, isMergeable?: boolean) {
     this._coveyTownID = (process.env.DEMO_TOWN_ID === friendlyName ? friendlyName : friendlyNanoID());
     this._capacity = 50;
     this._townUpdatePassword = nanoid(24);
@@ -104,12 +104,7 @@ export default class CoveyTownController {
     } else {
       this._isMergeable = false;
     }
-
-    if (isJoinable !== undefined) {
-      this.isJoinable = isJoinable;
-    } else {
-      this.isJoinable = true;
-    }
+    this.isJoinable = true;
   }
 
   /**
