@@ -237,6 +237,12 @@ export async function townMergeRequestHandler(requestData: TownMergeRequest): Pr
       message: 'Must specify a name for the new town',
     };
   }
+  if (requestData.coveyTownPassword !== townsStore.getControllerForTown(requestData.destinationCoveyTownID)?.townUpdatePassword){
+    return {
+      isOK: false,
+      message: 'Invalid password. Please double check your town update password.',
+    };
+  }
   const mergedTown = townsStore.mergeTowns(requestData.destinationCoveyTownID, 
     requestData.requestedCoveyTownID, requestData.coveyTownPassword, 
     requestData.newTownFriendlyName, requestData.newTownIsPubliclyListed, 
@@ -258,7 +264,7 @@ export async function townMergeRequestHandler(requestData: TownMergeRequest): Pr
   }
   return {
     isOK: false,
-    message: 'Invalid password. Please double check your town update password.',
+    message: 'Merge Failed.',
   };
 }
 
@@ -309,6 +315,12 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
       newTownFriendlyName: string, newTownIsPubliclyListed: boolean, newTownIsMergeable: boolean) {
         
       socket.emit('roomsMerged', destinationTownID, requestedTownID, destinationFriendlyName, 
+        requestedFriendlyName, newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable);
+    },
+    onTownMerging(destinationTownID: string, requestedTownID: string, destinationFriendlyName: string, requestedFriendlyName: string, 
+      newTownFriendlyName: string, newTownIsPubliclyListed: boolean, newTownIsMergeable: boolean) {
+        
+      socket.emit('roomsMerging', destinationTownID, requestedTownID, destinationFriendlyName, 
         requestedFriendlyName, newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable);
     },
   };

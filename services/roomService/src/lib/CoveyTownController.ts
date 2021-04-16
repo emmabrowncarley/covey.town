@@ -188,14 +188,36 @@ export default class CoveyTownController {
   }
 
   /**
-   * Notify all players that they will be merged with the town associated with 
-   * the newTownID given
+   * Notify all players that they were merged with another town
    * 
-   * @param newTownID the newTownID of the town to be merged with
+   * @param destinationTownID the destination town ID
+   * @param requestedTownID the requested town ID
+   * @param destinationFriendlyName the destination town's friendlyName
+   * @param requestedFriendlyName the requested town's friendlyName
+   * @param newTownFriendlyName the new town's friendly name
+   * @param newTownIsPubliclyListed whether or not the new town is publicly listed
+   * @param newTownIsMergeable whether or not the new town is publicly listed
    */
   townsMerged(destinationTownID: string, requestedTownID: string, destinationFriendlyName: string, requestedFriendlyName: string, 
     newTownFriendlyName: string, newTownIsPubliclyListed: boolean, newTownIsMergeable: boolean): void {
     this._listeners.forEach((listener) => listener.onTownMerged(destinationTownID, requestedTownID, destinationFriendlyName, 
+      requestedFriendlyName, newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable));
+  }
+
+  /**
+   * Notifies all players that two towns are merging
+   * 
+   * @param destinationTownID the destination town ID
+   * @param requestedTownID the requested town ID
+   * @param destinationFriendlyName the destination town's friendlyName
+   * @param requestedFriendlyName the requested town's friendlyName
+   * @param newTownFriendlyName the new town's friendly name
+   * @param newTownIsPubliclyListed whether or not the new town is publicly listed
+   * @param newTownIsMergeable whether or not the new town is publicly listed
+   */
+  townsAreMerging(destinationTownID: string, requestedTownID: string, destinationFriendlyName: string, requestedFriendlyName: string, 
+    newTownFriendlyName: string, newTownIsPubliclyListed: boolean, newTownIsMergeable: boolean): void {
+    this._listeners.forEach((listener) => listener.onTownMerging(destinationTownID, requestedTownID, destinationFriendlyName, 
       requestedFriendlyName, newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable));
   }
 }

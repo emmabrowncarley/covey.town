@@ -193,6 +193,27 @@ describe('CoveyTownController', () => {
         expect(listener.onTownMerged).toBeCalledWith(testingTown.coveyTownID, town2.coveyTownID, 
           testingTown.friendlyName, town2.friendlyName, 'newFriendlyName', true, true));
     });
+    it('should notify all listeners of both towns when townsAreMerging is called', async () => {
+      const town2 = new CoveyTownController('town2', false);
+
+      const player1 = new Player('test player');
+      testingTown.addPlayer(player1);
+
+      const player2 = new Player('test player');
+      town2.addPlayer(player2);
+
+      mockListeners.forEach(listener => {
+        testingTown.addTownListener(listener);
+        town2.addTownListener(listener);
+      });
+      
+      town2.townsAreMerging(testingTown.coveyTownID, town2.coveyTownID, testingTown.friendlyName, town2.friendlyName, 'newFriendlyName', true, true);
+      testingTown.townsAreMerging(town2.coveyTownID, testingTown.coveyTownID, town2.friendlyName, testingTown.friendlyName, 'newFriendlyName', true, true);
+
+      mockListeners.forEach(listener => 
+        expect(listener.onTownMerging).toBeCalledWith(testingTown.coveyTownID, town2.coveyTownID, 
+          testingTown.friendlyName, town2.friendlyName, 'newFriendlyName', true, true));
+    });
   });
   describe('townSubscriptionHandler', () => {
     const mockSocket = mock<Socket>();

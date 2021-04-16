@@ -25,6 +25,11 @@ function mockCoveyListener(): CoveyTownListener {
       mockCoveyListenerOtherFns(destinationTownID, requestedTownID, destinationFriendlyName, requestedFriendlyName,
         newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable);
     },
+    onTownMerging(destinationTownID: string, requestedTownID: string, destinationFriendlyName: string, requestedFriendlyName: string, 
+      newTownFriendlyName: string, newTownIsPubliclyListed: boolean, newTownIsMergeable: boolean){
+      mockCoveyListenerOtherFns(destinationTownID, requestedTownID, destinationFriendlyName, requestedFriendlyName,
+        newTownFriendlyName, newTownIsPubliclyListed, newTownIsMergeable);
+    },
   };
 }
 
