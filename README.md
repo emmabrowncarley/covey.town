@@ -12,6 +12,12 @@ The frontend implements video chat using the [Twilio Programmable Video](https:/
 
 A backend service (in the `services/roomService` directory) implements the application logic: tracking which "towns" are available to be joined, and the state of each of those towns.
 
+# Covey.Town - Merge
+
+Covey.Town provides a virtual meeting space where different groups of people can have simultaneous video calls, 
+allowing participants to drift between different conversations, just like in real life. Our group has implemented a version of 
+Covey.Town where there is capabiltiy to merge rooms together. To test out this function read the steps below. 
+
 ## Running this app locally
 
 Running the application locally entails running both the backend service and a frontend.
