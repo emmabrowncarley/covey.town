@@ -52,7 +52,7 @@ Create a `.env` file in the `frontend` directory, with the line: `REACT_APP_TOWN
 In the `frontend` directory, run `npm start` (again, you'll need to run `npm install` the very first time). After several moments (or minutes, depending on the speed of your machine), a browser will open with the frontend running locally.
 The frontend will automatically re-compile and reload in your browser if you change any files in the `frontend/src` directory.
 
-Instructions 
+### Instructions 
 1. At the homepage of Covey.Town you will need to create at least two different rooms. When creating the towns it is important to make sure that the __"mergeable?"__ checkbox is clicked. 
 2. NOTE: you can select to make these town private, but if the town is private the townID should be saved so that you can find the town when creating a merge request 
 3. Create a merge request with the __"Merge with Other Towns"__ button and enter all of the necessary information and configure the settings according to user discretion. 
