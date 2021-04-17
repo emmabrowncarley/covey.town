@@ -9,14 +9,16 @@
 - Created a TownMergeRequest in the TownServiceClient to provide a structure for the payload sent by the client to merge two towns
 - Created mergeTowns method in TownServiceClient to pass the TownMergeRequest data to the town merge api endpoint
 - Created listMergeableTowns method in TownServiceClient to return a list of available mergeable towns to populate the mergeable towns list shown to the users
-- Created townsMerged method in CoveyRoomController to notify all players that they are being merged into a new town
+- Created townsMerged method in CoveyRoomController to notify all players that they have been merged into a new town
+- Created townsAreMerging method in CoveyRoomController to notify all players that they are being merged into a new town
 - Created getMergeableTowns method in CoveyTownsStore to return a list of all the available mergeable towns
-- Created mergeTowns method in CoveyTownsStore which disconnects all players from the two towns that are merging, deletes those towns, and connect all towns to the new town
+- Created mergeTowns method in CoveyTownsStore which disconnects all players from the requested town, deletes the requested town, and connects all players to the destination town
 - Created townMergeableListHandler method in CoveyTownRequestHandlers that returns that list of mergeable towns
 - Created townMergeRequestHandler method in CoveyTownRequestHandlers that merges the towns if the request is valid and returns an error message if there will be a capacity overflow in the new room, the password is incorrect, the new friendlyName is empty, or one of the towns is already involved in a merge
 - Added a patch http method to handle merging towns
 - Added a get http method to list the available mergeable towns
 - Added an onTownMerged method in the CoveyTownListener to be called when a player requests that their town be merged with another town
+- Added an onTownMerging method in the CoveyTownListener to be called to alert all players in the merging towns that their towns are merging
 
 ## Frontend
 
